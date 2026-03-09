@@ -1,0 +1,4 @@
+Command: /home/lilybot/.espressif/python_env/idf5.5_py3.12_env/bin/python /home/lilybot/esp/esp-idf/tools/idf_monitor.py -p /dev/ttyACM1 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/lilybot/firmware_project/lilybot_firmware/build/lilybot_firmware.elf /home/lilybot/firmware_project/lilybot_firmware/build/bootloader/bootloader.elf -m '/home/lilybot/.espressif/python_env/idf5.5_py3.12_env/bin/python' '/home/lilybot/esp/esp-idf/tools/idf.py' '-p' '/dev/ttyACM1'
+hello
+hello
+helloc

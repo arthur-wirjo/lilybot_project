@@ -1,0 +1,2 @@
+source /home/lilybot/firmware_project/micro-ROS/build/gdbinit/symbols
+source /home/lilybot/firmware_project/micro-ROS/build/gdbinit/connect
