@@ -165,7 +165,6 @@ void micro_ros_task(void * arg) {
         } else {
             printf("I2C Read Error\n");
         }
-    }
 
         int64_t time_ns = rmw_uros_epoch_nanos();
         imu_msg.header.stamp.sec = time_ns / 1000000000;
@@ -173,7 +172,7 @@ void micro_ros_task(void * arg) {
 
         RCSOFTCHECK(rcl_publish(&imu_publisher, &imu_msg, NULL));
         vTaskDelay(pdMS_TO_TICKS(10)); 
-
+    }
     // Currently task will never end but useful for future
     RCCHECK(rcl_node_fini(&node));
     vTaskDelete(NULL);
@@ -200,7 +199,7 @@ void app_main(void) {
     ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
     vTaskDelay(pdMS_TO_TICKS(200)); // Allow voltage to stabilize
 
-    // Probe and Initialize IMU on Core 0
+    // Probing I2C
     printf("Probing 0x68...\n");
     esp_err_t probe_ret = i2c_master_probe(bus_handle, 0x68, 50);
     
