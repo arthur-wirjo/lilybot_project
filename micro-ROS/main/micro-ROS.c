@@ -1,14 +1,6 @@
 // Documentation notes for self:
-// Currently the imu data topic is not being published and idk why
-// Initially it worked but now it doesn't and i suspect its because
-// I tried to modify i2c_scanner to call a function instead and perhaps
-// It messed up the ISR in esp perhaps 
-// Doesn't seem like a big deal because gemini suggested
-// Passing the bus handle as an argument to the micro-ROS task
-// which makes more sense and hopefully will fix the problem
-// if not then goodluck lmao
-// i think its worth experimenting with differnt codes
-// try use github
+// imu data publishing and github successfully set. will now go with motor control
+
 
 #include <string.h>
 #include <stdio.h>
