@@ -1,7 +1,6 @@
 // Documentation notes for self:
 // imu data publishing and github successfully set. will now go with motor control
 
-
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -40,9 +39,9 @@
 #define I2C_MASTER_FREQ_HZ 50000 
 
 // Brake Pins
-#define BRAKE_PIN_1 42
-#define BRAKE_PIN_2 15
-#define BRAKE_PIN_3 16  
+#define BRA_PIN_1 42
+#define BRA_PIN_2 15
+#define BRA_PIN_3 16  
 
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Aborting.\n",__LINE__,(int)temp_rc);vTaskDelete(NULL);}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Continuing.\n",__LINE__,(int)temp_rc);}}
@@ -55,14 +54,14 @@ void init_brakes() {
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = (1ULL << BRAKE_PIN_1) | (1ULL << BRAKE_PIN_2) | (1ULL << BRAKE_PIN_3);
+    io_conf.pin_bit_mask = (1ULL << BRA_PIN_1) | (1ULL << BRA_PIN_2) | (1ULL << BRA_PIN_3);
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     gpio_config(&io_conf);
 
-    gpio_set_level(BRAKE_PIN_1, 0);
-    gpio_set_level(BRAKE_PIN_2, 0);
-    gpio_set_level(BRAKE_PIN_3, 0);
+    gpio_set_level(BRA_PIN_1, 0);
+    gpio_set_level(BRA_PIN_2, 0);
+    gpio_set_level(BRA_PIN_3, 0);
 
     printf("Brakes Engaged\n");
 }
