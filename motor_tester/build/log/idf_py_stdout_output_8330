@@ -1,0 +1,246 @@
+Command: ninja all
+[1/11] Performing build step for 'bootloader'
+[1/1] cd /home/lilybot/firmware_project/motor_tester/build/bootloader/esp-idf/esptool_py && /home/lilybot/.espressif/python_env/idf5.5_py3.12_env/bin/python /home/lilybot/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/lilybot/firmware_project/motor_tester/build/bootloader/bootloader.bin
+Bootloader binary size 0x5260 bytes. 0x2da0 bytes (36%) free.
+[2/11] Linking C static library esp-idf/wifi_provisioning/libwifi_provisioning.a
+[3/11] No install step for 'bootloader'
+[4/11] Completed 'bootloader'
+[5/11] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/motor_tester.c.obj
+FAILED: esp-idf/main/CMakeFiles/__idf_main.dir/motor_tester.c.obj 
+/home/lilybot/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc -DESP_PLATFORM -DIDF_VER=\"v5.5\" -DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\" -DSOC_MMU_PAGE_SIZE=CONFIG_MMU_PAGE_SIZE -DSOC_XTAL_FREQ_MHZ=CONFIG_XTAL_FREQ -DUNITY_INCLUDE_CONFIG_H -D_GLIBCXX_HAVE_POSIX_SEMAPHORE -D_GLIBCXX_USE_POSIX_SEMAPHORE -D_GNU_SOURCE -D_POSIX_READER_WRITER_LOCKS -I/home/lilybot/firmware_project/motor_tester/build/config -I/home/lilybot/firmware_project/motor_tester/main -I/home/lilybot/esp/esp-idf/components/newlib/platform_include -I/home/lilybot/esp/esp-idf/components/freertos/config/include -I/home/lilybot/esp/esp-idf/components/freertos/config/include/freertos -I/home/lilybot/esp/esp-idf/components/freertos/config/xtensa/include -I/home/lilybot/esp/esp-idf/components/freertos/FreeRTOS-Kernel/include -I/home/lilybot/esp/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/include -I/home/lilybot/esp/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/include/freertos -I/home/lilybot/esp/esp-idf/components/freertos/esp_additions/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/include/soc -I/home/lilybot/esp/esp-idf/components/esp_hw_support/include/soc/esp32s3 -I/home/lilybot/esp/esp-idf/components/esp_hw_support/dma/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/ldo/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/debug_probe/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/mspi_timing_tuning/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/mspi_timing_tuning/tuning_scheme_impl/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/power_supply/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/port/esp32s3/. -I/home/lilybot/esp/esp-idf/components/esp_hw_support/port/esp32s3/include -I/home/lilybot/esp/esp-idf/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/. -I/home/lilybot/esp/esp-idf/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/include -I/home/lilybot/esp/esp-idf/components/heap/include -I/home/lilybot/esp/esp-idf/components/heap/tlsf -I/home/lilybot/esp/esp-idf/components/log/include -I/home/lilybot/esp/esp-idf/components/soc/include -I/home/lilybot/esp/esp-idf/components/soc/esp32s3 -I/home/lilybot/esp/esp-idf/components/soc/esp32s3/include -I/home/lilybot/esp/esp-idf/components/soc/esp32s3/register -I/home/lilybot/esp/esp-idf/components/hal/platform_port/include -I/home/lilybot/esp/esp-idf/components/hal/esp32s3/include -I/home/lilybot/esp/esp-idf/components/hal/include -I/home/lilybot/esp/esp-idf/components/esp_rom/include -I/home/lilybot/esp/esp-idf/components/esp_rom/esp32s3/include -I/home/lilybot/esp/esp-idf/components/esp_rom/esp32s3/include/esp32s3 -I/home/lilybot/esp/esp-idf/components/esp_rom/esp32s3 -I/home/lilybot/esp/esp-idf/components/esp_common/include -I/home/lilybot/esp/esp-idf/components/esp_system/include -I/home/lilybot/esp/esp-idf/components/esp_system/port/soc -I/home/lilybot/esp/esp-idf/components/esp_system/port/include/private -I/home/lilybot/esp/esp-idf/components/xtensa/esp32s3/include -I/home/lilybot/esp/esp-idf/components/xtensa/include -I/home/lilybot/esp/esp-idf/components/xtensa/deprecated_include -I/home/lilybot/esp/esp-idf/components/lwip/include -I/home/lilybot/esp/esp-idf/components/lwip/include/apps -I/home/lilybot/esp/esp-idf/components/lwip/include/apps/sntp -I/home/lilybot/esp/esp-idf/components/lwip/lwip/src/include -I/home/lilybot/esp/esp-idf/components/lwip/port/include -I/home/lilybot/esp/esp-idf/components/lwip/port/freertos/include -I/home/lilybot/esp/esp-idf/components/lwip/port/esp32xx/include -I/home/lilybot/esp/esp-idf/components/lwip/port/esp32xx/include/arch -I/home/lilybot/esp/esp-idf/components/lwip/port/esp32xx/include/sys -I/home/lilybot/esp/esp-idf/components/esp_driver_gpio/include -I/home/lilybot/esp/esp-idf/components/esp_pm/include -I/home/lilybot/esp/esp-idf/components/mbedtls/port/include -I/home/lilybot/esp/esp-idf/components/mbedtls/mbedtls/include -I/home/lilybot/esp/esp-idf/components/mbedtls/mbedtls/library -I/home/lilybot/esp/esp-idf/components/mbedtls/esp_crt_bundle/include -I/home/lilybot/esp/esp-idf/components/mbedtls/mbedtls/3rdparty/everest/include -I/home/lilybot/esp/esp-idf/components/mbedtls/mbedtls/3rdparty/p256-m -I/home/lilybot/esp/esp-idf/components/mbedtls/mbedtls/3rdparty/p256-m/p256-m -I/home/lilybot/esp/esp-idf/components/esp_app_format/include -I/home/lilybot/esp/esp-idf/components/esp_bootloader_format/include -I/home/lilybot/esp/esp-idf/components/app_update/include -I/home/lilybot/esp/esp-idf/components/bootloader_support/include -I/home/lilybot/esp/esp-idf/components/bootloader_support/bootloader_flash/include -I/home/lilybot/esp/esp-idf/components/esp_partition/include -I/home/lilybot/esp/esp-idf/components/efuse/include -I/home/lilybot/esp/esp-idf/components/efuse/esp32s3/include -I/home/lilybot/esp/esp-idf/components/esp_mm/include -I/home/lilybot/esp/esp-idf/components/spi_flash/include -I/home/lilybot/esp/esp-idf/components/esp_security/include -I/home/lilybot/esp/esp-idf/components/pthread/include -I/home/lilybot/esp/esp-idf/components/esp_timer/include -I/home/lilybot/esp/esp-idf/components/esp_driver_gptimer/include -I/home/lilybot/esp/esp-idf/components/esp_ringbuf/include -I/home/lilybot/esp/esp-idf/components/esp_driver_uart/include -I/home/lilybot/esp/esp-idf/components/vfs/include -I/home/lilybot/esp/esp-idf/components/app_trace/include -I/home/lilybot/esp/esp-idf/components/esp_event/include -I/home/lilybot/esp/esp-idf/components/nvs_flash/include -I/home/lilybot/esp/esp-idf/components/esp_phy/include -I/home/lilybot/esp/esp-idf/components/esp_phy/esp32s3/include -I/home/lilybot/esp/esp-idf/components/esp_driver_usb_serial_jtag/include -I/home/lilybot/esp/esp-idf/components/esp_vfs_console/include -I/home/lilybot/esp/esp-idf/components/esp_netif/include -I/home/lilybot/esp/esp-idf/components/wpa_supplicant/include -I/home/lilybot/esp/esp-idf/components/wpa_supplicant/port/include -I/home/lilybot/esp/esp-idf/components/wpa_supplicant/esp_supplicant/include -I/home/lilybot/esp/esp-idf/components/esp_coex/include -I/home/lilybot/esp/esp-idf/components/esp_wifi/include -I/home/lilybot/esp/esp-idf/components/esp_wifi/include/local -I/home/lilybot/esp/esp-idf/components/esp_wifi/wifi_apps/include -I/home/lilybot/esp/esp-idf/components/esp_wifi/wifi_apps/nan_app/include -I/home/lilybot/esp/esp-idf/components/esp_driver_spi/include -I/home/lilybot/esp/esp-idf/components/esp_gdbstub/include -I/home/lilybot/esp/esp-idf/components/unity/include -I/home/lilybot/esp/esp-idf/components/unity/unity/src -I/home/lilybot/esp/esp-idf/components/cmock/CMock/src -I/home/lilybot/esp/esp-idf/components/console -I/home/lilybot/esp/esp-idf/components/esp_driver_pcnt/include -I/home/lilybot/esp/esp-idf/components/esp_driver_mcpwm/include -I/home/lilybot/esp/esp-idf/components/esp_driver_ana_cmpr/include -I/home/lilybot/esp/esp-idf/components/esp_driver_i2s/include -I/home/lilybot/esp/esp-idf/components/sdmmc/include -I/home/lilybot/esp/esp-idf/components/esp_driver_sdmmc/include -I/home/lilybot/esp/esp-idf/components/esp_driver_sdspi/include -I/home/lilybot/esp/esp-idf/components/esp_driver_sdio/include -I/home/lilybot/esp/esp-idf/components/esp_driver_dac/include -I/home/lilybot/esp/esp-idf/components/esp_driver_bitscrambler/include -I/home/lilybot/esp/esp-idf/components/esp_driver_rmt/include -I/home/lilybot/esp/esp-idf/components/esp_driver_tsens/include -I/home/lilybot/esp/esp-idf/components/esp_driver_sdm/include -I/home/lilybot/esp/esp-idf/components/esp_driver_i2c/include -I/home/lilybot/esp/esp-idf/components/esp_driver_ledc/include -I/home/lilybot/esp/esp-idf/components/esp_driver_parlio/include -I/home/lilybot/esp/esp-idf/components/esp_driver_twai/include -I/home/lilybot/esp/esp-idf/components/driver/deprecated -I/home/lilybot/esp/esp-idf/components/driver/i2c/include -I/home/lilybot/esp/esp-idf/components/driver/touch_sensor/include -I/home/lilybot/esp/esp-idf/components/driver/twai/include -I/home/lilybot/esp/esp-idf/components/driver/touch_sensor/esp32s3/include -I/home/lilybot/esp/esp-idf/components/http_parser -I/home/lilybot/esp/esp-idf/components/esp-tls -I/home/lilybot/esp/esp-idf/components/esp-tls/esp-tls-crypto -I/home/lilybot/esp/esp-idf/components/esp_adc/include -I/home/lilybot/esp/esp-idf/components/esp_adc/interface -I/home/lilybot/esp/esp-idf/components/esp_adc/esp32s3/include -I/home/lilybot/esp/esp-idf/components/esp_adc/deprecated/include -I/home/lilybot/esp/esp-idf/components/esp_driver_isp/include -I/home/lilybot/esp/esp-idf/components/esp_driver_cam/include -I/home/lilybot/esp/esp-idf/components/esp_driver_cam/interface -I/home/lilybot/esp/esp-idf/components/esp_psram/include -I/home/lilybot/esp/esp-idf/components/esp_psram/xip_impl/include -I/home/lilybot/esp/esp-idf/components/esp_driver_jpeg/include -I/home/lilybot/esp/esp-idf/components/esp_driver_ppa/include -I/home/lilybot/esp/esp-idf/components/esp_driver_touch_sens/include -I/home/lilybot/esp/esp-idf/components/esp_driver_touch_sens/hw_ver2/include -I/home/lilybot/esp/esp-idf/components/esp_eth/include -I/home/lilybot/esp/esp-idf/components/esp_hid/include -I/home/lilybot/esp/esp-idf/components/tcp_transport/include -I/home/lilybot/esp/esp-idf/components/esp_http_client/include -I/home/lilybot/esp/esp-idf/components/esp_http_server/include -I/home/lilybot/esp/esp-idf/components/esp_https_ota/include -I/home/lilybot/esp/esp-idf/components/esp_https_server/include -I/home/lilybot/esp/esp-idf/components/esp_lcd/include -I/home/lilybot/esp/esp-idf/components/esp_lcd/interface -I/home/lilybot/esp/esp-idf/components/esp_lcd/rgb/include -I/home/lilybot/esp/esp-idf/components/protobuf-c/protobuf-c -I/home/lilybot/esp/esp-idf/components/protocomm/include/common -I/home/lilybot/esp/esp-idf/components/protocomm/include/security -I/home/lilybot/esp/esp-idf/components/protocomm/include/transports -I/home/lilybot/esp/esp-idf/components/protocomm/include/crypto/srp6a -I/home/lilybot/esp/esp-idf/components/protocomm/proto-c -I/home/lilybot/esp/esp-idf/components/esp_local_ctrl/include -I/home/lilybot/esp/esp-idf/components/espcoredump/include -I/home/lilybot/esp/esp-idf/components/espcoredump/include/port/xtensa -I/home/lilybot/esp/esp-idf/components/wear_levelling/include -I/home/lilybot/esp/esp-idf/components/fatfs/diskio -I/home/lilybot/esp/esp-idf/components/fatfs/src -I/home/lilybot/esp/esp-idf/components/fatfs/vfs -I/home/lilybot/esp/esp-idf/components/idf_test/include -I/home/lilybot/esp/esp-idf/components/idf_test/include/esp32s3 -I/home/lilybot/esp/esp-idf/components/ieee802154/include -I/home/lilybot/esp/esp-idf/components/json/cJSON -I/home/lilybot/esp/esp-idf/components/mqtt/esp-mqtt/include -I/home/lilybot/esp/esp-idf/components/nvs_sec_provider/include -I/home/lilybot/esp/esp-idf/components/perfmon/include -I/home/lilybot/esp/esp-idf/components/rt/include -I/home/lilybot/esp/esp-idf/components/spiffs/include -I/home/lilybot/esp/esp-idf/components/touch_element/include -I/home/lilybot/esp/esp-idf/components/usb/include -I/home/lilybot/esp/esp-idf/components/wifi_provisioning/include -mlongcalls  -fno-builtin-memcpy -fno-builtin-memset -fno-builtin-bzero -fno-builtin-stpcpy -fno-builtin-strncpy -fdiagnostics-color=always -ffunction-sections -fdata-sections -Wall -Werror=all -Wno-error=unused-function -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wextra -Wno-error=extra -Wno-unused-parameter -Wno-sign-compare -Wno-enum-conversion -gdwarf-4 -ggdb -mdisable-hardware-atomics -Og -fno-shrink-wrap -fmacro-prefix-map=/home/lilybot/firmware_project/motor_tester=. -fmacro-prefix-map=/home/lilybot/esp/esp-idf=/IDF -fstrict-volatile-bitfields -fno-jump-tables -fno-tree-switch-conversion -std=gnu17 -Wno-old-style-declaration -MD -MT esp-idf/main/CMakeFiles/__idf_main.dir/motor_tester.c.obj -MF esp-idf/main/CMakeFiles/__idf_main.dir/motor_tester.c.obj.d -o esp-idf/main/CMakeFiles/__idf_main.dir/motor_tester.c.obj -c /home/lilybot/firmware_project/motor_tester/main/motor_tester.c
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:44:41: error: 'LED_CHANNEL_0' undeclared here (not in a function); did you mean 'LEDC_CHANNEL_0'?
+   44 | const ledc_channel_t PWM_CHANNELS[3] = {LED_CHANNEL_0, LED_CHANNEL_1, LED_CHANNEL_2};
+      |                                         ^~~~~~~~~~~~~
+      |                                         LEDC_CHANNEL_0
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:44:56: error: 'LED_CHANNEL_1' undeclared here (not in a function); did you mean 'LEDC_CHANNEL_1'?
+   44 | const ledc_channel_t PWM_CHANNELS[3] = {LED_CHANNEL_0, LED_CHANNEL_1, LED_CHANNEL_2};
+      |                                                        ^~~~~~~~~~~~~
+      |                                                        LEDC_CHANNEL_1
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:44:71: error: 'LED_CHANNEL_2' undeclared here (not in a function); did you mean 'LEDC_CHANNEL_2'?
+   44 | const ledc_channel_t PWM_CHANNELS[3] = {LED_CHANNEL_0, LED_CHANNEL_1, LED_CHANNEL_2};
+      |                                                                       ^~~~~~~~~~~~~
+      |                                                                       LEDC_CHANNEL_2
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c: In function 'init_motors':
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:47:50: error: macro "ESP_LOGI" requires 3 arguments, but only 1 given
+   47 |     ESP_LOGI("Initializing Motor GPIOs and PWM\n");
+      |                                                  ^
+In file included from /home/lilybot/firmware_project/motor_tester/main/motor_tester.c:10:
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:9: note: macro "ESP_LOGI" defined here
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |         ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:47:5: error: 'ESP_LOGI' undeclared (first use in this function)
+   47 |     ESP_LOGI("Initializing Motor GPIOs and PWM\n");
+      |     ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:47:5: note: each undeclared identifier is reported only once for each function it appears in
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:36:25: error: 'LED_TIMER_0' undeclared (first use in this function); did you mean 'LEDC_TIMER_0'?
+   36 | #define LEDC_TIMER      LED_TIMER_0
+      |                         ^~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:69:22: note: in expansion of macro 'LEDC_TIMER'
+   69 |         .timer_num = LEDC_TIMER,
+      |                      ^~~~~~~~~~
+In file included from /home/lilybot/esp/esp-idf/components/esp_hw_support/include/esp_intr_alloc.h:12,
+                 from /home/lilybot/esp/esp-idf/components/esp_hw_support/include/esp_cpu.h:21,
+                 from /home/lilybot/esp/esp-idf/components/esp_hw_support/include/spinlock.h:11,
+                 from /home/lilybot/esp/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/include/freertos/portmacro.h:49,
+                 from /home/lilybot/esp/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/portable.h:57,
+                 from /home/lilybot/esp/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/FreeRTOS.h:69,
+                 from /home/lilybot/esp/esp-idf/components/esp_system/include/esp_task_wdt.h:10,
+                 from /home/lilybot/firmware_project/motor_tester/main/motor_tester.c:7:
+/home/lilybot/esp/esp-idf/components/esp_common/include/esp_err.h:115:28: error: expected ',' or ';' before 'do'
+  115 | #define ESP_ERROR_CHECK(x) do {                                         \
+      |                            ^~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:74:5: note: in expansion of macro 'ESP_ERROR_CHECK'
+   74 |     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+      |     ^~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:87:25: error: implicit declaration of function 'led_channel_config'; did you mean 'ledc_channel_config'? [-Wimplicit-function-declaration]
+   87 |         ESP_ERROR_CHECK(led_channel_config(&ledc_channel));
+      |                         ^~~~~~~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/esp_common/include/esp_err.h:116:30: note: in definition of macro 'ESP_ERROR_CHECK'
+  116 |         esp_err_t err_rc_ = (x);                                        \
+      |                              ^
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:90:45: error: macro "ESP_LOGI" requires 3 arguments, but only 1 given
+   90 |     ESP_LOGI("Motor initialization complete");
+      |                                             ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:9: note: macro "ESP_LOGI" defined here
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |         ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:67:25: warning: unused variable 'ledc_timer' [-Wunused-variable]
+   67 |     ledc_timer_config_t ledc_timer = {
+      |                         ^~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c: In function 'set_motor_speed':
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:95:63: error: macro "ESP_LOGE" requires 3 arguments, but only 1 given
+   95 |         ESP_LOGE("Invalid motor ID, must be 1, 2, 3 or 4(all)");
+      |                                                               ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:123:9: note: macro "ESP_LOGE" defined here
+  123 | #define ESP_LOGE(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_ERROR, tag, format, ##__VA_ARGS__); } while(0)
+      |         ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:95:9: error: 'ESP_LOGE' undeclared (first use in this function)
+   95 |         ESP_LOGE("Invalid motor ID, must be 1, 2, 3 or 4(all)");
+      |         ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:114:9: error: suggest parentheses around assignment used as truth value [-Werror=parentheses]
+  114 |     if (speed = 0) {
+      |         ^~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c: In function 'cli_task':
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:138:65: error: macro "ESP_LOGI" requires 3 arguments, but only 1 given
+  138 |     ESP_LOGI("Enter commands like 'm1 50' use m4 for everything");
+      |                                                                 ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:9: note: macro "ESP_LOGI" defined here
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |         ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:138:5: error: 'ESP_LOGI' undeclared (first use in this function)
+  138 |     ESP_LOGI("Enter commands like 'm1 50' use m4 for everything");
+      |     ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:143:16: error: expected '(' before 'strlen'
+  143 |             if strlen(line) == 0 continue;
+      |                ^~~~~~
+      |                (
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:143:16: error: statement with no effect [-Werror=unused-value]
+  143 |             if strlen(line) == 0 continue;
+      |                ^~~~~~~~~~~~
+In file included from /home/lilybot/esp/esp-idf/components/log/include/esp_log.h:20:
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:57: error: expected ')' before 'id'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                                                         ^~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log_format.h:15:88: note: in definition of macro 'LOG_FORMAT'
+   15 | #define LOG_FORMAT(letter, format)  LOG_COLOR_ ## letter #letter " (%" PRIu32 ") %s: " format LOG_RESET_COLOR "\n"
+      |                                                                                        ^~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:220:72: note: to match this '('
+  220 |         if (ESP_LOG_GET_LEVEL(configs)==ESP_LOG_ERROR)        { esp_log(ESP_LOG_CONFIG_INIT(ESP_LOG_ERROR),   tag, LOG_FORMAT(E, format), esp_log_timestamp(), tag, ##__VA_ARGS__); } \
+      |                                                                        ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:57: error: expected ')' before 'id'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                                                         ^~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log_format.h:15:88: note: in definition of macro 'LOG_FORMAT'
+   15 | #define LOG_FORMAT(letter, format)  LOG_COLOR_ ## letter #letter " (%" PRIu32 ") %s: " format LOG_RESET_COLOR "\n"
+      |                                                                                        ^~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:221:72: note: to match this '('
+  221 |         else if (ESP_LOG_GET_LEVEL(configs)==ESP_LOG_WARN)    { esp_log(ESP_LOG_CONFIG_INIT(ESP_LOG_WARN),    tag, LOG_FORMAT(W, format), esp_log_timestamp(), tag, ##__VA_ARGS__); } \
+      |                                                                        ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:57: error: expected ')' before 'id'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                                                         ^~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log_format.h:15:88: note: in definition of macro 'LOG_FORMAT'
+   15 | #define LOG_FORMAT(letter, format)  LOG_COLOR_ ## letter #letter " (%" PRIu32 ") %s: " format LOG_RESET_COLOR "\n"
+      |                                                                                        ^~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:222:72: note: to match this '('
+  222 |         else if (ESP_LOG_GET_LEVEL(configs)==ESP_LOG_DEBUG)   { esp_log(ESP_LOG_CONFIG_INIT(ESP_LOG_DEBUG),   tag, LOG_FORMAT(D, format), esp_log_timestamp(), tag, ##__VA_ARGS__); } \
+      |                                                                        ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:57: error: expected ')' before 'id'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                                                         ^~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log_format.h:15:88: note: in definition of macro 'LOG_FORMAT'
+   15 | #define LOG_FORMAT(letter, format)  LOG_COLOR_ ## letter #letter " (%" PRIu32 ") %s: " format LOG_RESET_COLOR "\n"
+      |                                                                                        ^~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:223:72: note: to match this '('
+  223 |         else if (ESP_LOG_GET_LEVEL(configs)==ESP_LOG_VERBOSE) { esp_log(ESP_LOG_CONFIG_INIT(ESP_LOG_VERBOSE), tag, LOG_FORMAT(V, format), esp_log_timestamp(), tag, ##__VA_ARGS__); } \
+      |                                                                        ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:57: error: expected ')' before 'id'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                                                         ^~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log_format.h:15:88: note: in definition of macro 'LOG_FORMAT'
+   15 | #define LOG_FORMAT(letter, format)  LOG_COLOR_ ## letter #letter " (%" PRIu32 ") %s: " format LOG_RESET_COLOR "\n"
+      |                                                                                        ^~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:224:72: note: to match this '('
+  224 |         else                                                  { esp_log(ESP_LOG_CONFIG_INIT(ESP_LOG_INFO),    tag, LOG_FORMAT(I, format), esp_log_timestamp(), tag, ##__VA_ARGS__); } \
+      |                                                                        ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:165:94: note: in expansion of macro 'ESP_LOG_LEVEL'
+  165 | #define ESP_LOG_LEVEL_LOCAL(configs, tag, format, ...) do { if (_ESP_LOG_ENABLED(configs)) { ESP_LOG_LEVEL(configs, tag, format, ##__VA_ARGS__); } } while(0)
+      |                                                                                              ^~~~~~~~~~~~~
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:127:41: note: in expansion of macro 'ESP_LOG_LEVEL_LOCAL'
+  127 | #define ESP_LOGI(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, format, ##__VA_ARGS__); } while(0)
+      |                                         ^~~~~~~~~~~~~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:146:17: note: in expansion of macro 'ESP_LOGI'
+  146 |                 ESP_LOGI("Executing: Motor %d -> %d%%", id, speed);
+      |                 ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:149:68: error: macro "ESP_LOGW" requires 3 arguments, but only 1 given
+  149 |                 ESP_LOGW("Invlid command format, use m<id> <speed>");
+      |                                                                    ^
+/home/lilybot/esp/esp-idf/components/log/include/esp_log.h:125:9: note: macro "ESP_LOGW" defined here
+  125 | #define ESP_LOGW(tag, format, ...) do { ESP_LOG_LEVEL_LOCAL(ESP_LOG_WARN, tag, format, ##__VA_ARGS__); } while(0)
+      |         ^~~~~~~~
+/home/lilybot/firmware_project/motor_tester/main/motor_tester.c:149:17: error: 'ESP_LOGW' undeclared (first use in this function)
+  149 |                 ESP_LOGW("Invlid command format, use m<id> <speed>");
+      |                 ^~~~~~~~
+cc1: some warnings being treated as errors
+ninja: build stopped: subcommand failed.

@@ -10,7 +10,10 @@
 #include "esp_log.h"
 #include "esp_system.h"
 #include "driver/gpio.h"
-#include "driver/ledc"
+#include "driver/ledc.h"
+#include "driver/uart.h"
+
+static const char *TAG = "MOTOR_TEST";
 
 // Brake Pins
 #define BRA_PIN_1 42
@@ -33,18 +36,43 @@
 #define PWM_PIN_3 11
 
 // LEDC Configuration
-#define LEDC_TIMER      LED_TIMER_0
+#define LEDC_TIMER      LEDC_TIMER_0
 #define LEDC_MODE       LEDC_LOW_SPEED_MODE
 #define LEDC_DUTY_RES   LEDC_TIMER_10_BIT
 #define LEDC_FREQUENCY  20000
 
+// UART Configuration for Command Input
+#define COMMAND_UART_NUM UART_NUM_1
+#define COMMAND_UART_TX_PIN 17
+#define COMMAND_UART_RX_PIN 18
+#define BUF_SIZE 256
+
 const int BRA_PINS[3] = {BRA_PIN_1, BRA_PIN_2, BRA_PIN_3};
 const int FR_PINS[3] = {FR_PIN_1, FR_PIN_2, FR_PIN_3};
 const int PWM_PINS[3] = {PWM_PIN_1, PWM_PIN_2, PWM_PIN_3};
-const ledc_channel_t PWM_CHANNELS[3] = {LED_CHANNEL_0, LED_CHANNEL_1, LED_CHANNEL_2};
+const ledc_channel_t PWM_CHANNELS[3] = {LEDC_CHANNEL_0, LEDC_CHANNEL_1, LEDC_CHANNEL_2};
+
+void init_uart(void)
+{
+    uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity    = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .source_clk = UART_SCLK_DEFAULT,
+    };
+    
+    ESP_ERROR_CHECK(uart_driver_install(COMMAND_UART_NUM, BUF_SIZE * 2, 0, 0, NULL, 0));
+    ESP_ERROR_CHECK(uart_param_config(COMMAND_UART_NUM, &uart_config));
+    ESP_ERROR_CHECK(uart_set_pin(COMMAND_UART_NUM, COMMAND_UART_TX_PIN, COMMAND_UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    
+    ESP_LOGI(TAG, "UART initialized on TX:%d, RX:%d at 115200 baud.", COMMAND_UART_TX_PIN, COMMAND_UART_RX_PIN);
+}
+
 
 void init_motors(void) {
-    ESP_LOGI("Initializing Motor GPIOs and PWM\n");
+    ESP_LOGI(TAG, "Initializing Motor GPIOs and PWM\n");
 
     // Configure BRA and FR pins as outputs
     gpio_config_t io_conf = {
@@ -70,7 +98,7 @@ void init_motors(void) {
         .duty_resolution = LEDC_DUTY_RES,
         .freq_hz = LEDC_FREQUENCY,
         .clk_cfg = LEDC_AUTO_CLK   
-    }
+    };
     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
 
     // Configure LEDC Channels 
@@ -84,17 +112,91 @@ void init_motors(void) {
             .duty = 0,
             .hpoint = 0
         };
-        ESP_ERROR_CHECK(led_channel_config(&ledc_channel));
+        ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
     }
 
-    ESP_LOGI("Motor initialization complete");
+    ESP_LOGI(TAG, "Motor initialization complete");
 }
 
 void set_motor_speed(int id, int speed) {
+    if (id < 1 || id > 4) {
+        ESP_LOGE(TAG, "Invalid motor ID, must be 1, 2, 3 or 4(all)");
+        return;
+    }
 
+    if (id == 4) {
+        set_motor_speed(1, speed);
+        set_motor_speed(2, speed);
+        set_motor_speed(3, speed);
+        return;
+    }
+
+    if (speed > 100) {
+        speed = 100;
+    } else if (speed < -100) {
+        speed = -100;
+    }
+
+    int index = id - 1;
+
+    if (speed == 0) {
+        ledc_set_duty(LEDC_MODE, PWM_CHANNELS[index], 0);
+        ledc_update_duty(LEDC_MODE, PWM_CHANNELS[index]);
+        gpio_set_level(BRA_PINS[index], 0);
+    } else {
+        gpio_set_level(BRA_PINS[index], 1);
+        if (speed > 0) {
+            gpio_set_level(FR_PINS[index], 0);
+        } else {
+            gpio_set_level(FR_PINS[index], 1);
+        }
+
+        // Convert 0-100 into 0-1023 for 10 bit resolution
+        uint32_t duty = (abs(speed) * 1023) / 100;
+
+        ledc_set_duty(LEDC_MODE, PWM_CHANNELS[index], duty);
+        ledc_update_duty(LEDC_MODE, PWM_CHANNELS[index]);
+    }
+}
+
+void uart_command_task(void *pvParameters) {
+    uint8_t data[BUF_SIZE];
+    char line[BUF_SIZE];
+    int pos = 0;
+    int id, speed;
+
+    ESP_LOGI(TAG, "UART Command Task Ready");
+
+    while (1) {
+        int len = uart_read_bytes(COMMAND_UART_NUM, data, (BUF_SIZE - 1), pdMS_TO_TICKS(20));
+
+        if (len > 0) {
+            for (int i = 0; i < len; i++) {
+                char c = (char)data[i];
+
+                if (c == '\n' || c == '\r') {
+                    if (pos > 0) {
+                        line[pos] = '\0';
+
+                        if (sscanf(line, "m%d %d", &id, &speed) == 2) {
+                            ESP_LOGI(TAG, "Executing: Motor %d -> %d%%", id, speed);
+                            set_motor_speed(id, speed);
+                        } else {
+                            ESP_LOGW(TAG, "Invalid command format");
+                        }
+                        pos = 0;
+                    }
+                } else if (pos < BUF_SIZE - 1) {
+                    line[pos++] = c;
+                }
+            }
+        }
+    }
 }
 
 void app_main(void)
 {
-
+    init_motors();
+    init_uart();
+    xTaskCreate(uart_command_task, "uart_command_task", 4096, NULL, 5, NULL);
 }

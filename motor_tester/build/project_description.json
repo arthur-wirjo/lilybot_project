@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "motor_tester",
-    "project_version":    "6b94fcb-dirty",
+    "project_version":    "05a1c6f-dirty",
     "project_path":       "/home/lilybot/firmware_project/motor_tester",
     "idf_path":           "/home/lilybot/esp/esp-idf",
     "build_dir":          "/home/lilybot/firmware_project/motor_tester/build",
@@ -918,14 +918,14 @@
             "target": "___idf_esp_psram",
             "prefix": "idf",
             "dir": "/home/lilybot/esp/esp-idf/components/esp_psram",
-            "type": "CONFIG_ONLY",
+            "type": "LIBRARY",
             "lib": "__idf_esp_psram",
             "reqs": [],
             "priv_reqs": [ "heap", "spi_flash", "esp_mm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "",
-            "sources": [],
+            "file": "/home/lilybot/firmware_project/motor_tester/build/esp-idf/esp_psram/libesp_psram.a",
+            "sources": [ "/home/lilybot/esp/esp-idf/components/esp_psram/system_layer/esp_psram.c", "/home/lilybot/esp/esp-idf/components/esp_psram/esp32s3/esp_psram_impl_octal.c", "/home/lilybot/esp/esp-idf/components/esp_psram/device", "/home/lilybot/esp/esp-idf/components/esp_psram/xip_impl/mmu_psram_flash.c" ],
             "include_dirs": [ "include", "xip_impl/include" ]
         },
         "esp_ringbuf": {
@@ -1270,7 +1270,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "/home/lilybot/firmware_project/motor_tester/build/esp-idf/newlib/libnewlib.a",
-            "sources": [ "/home/lilybot/esp/esp-idf/components/newlib/src/init.c", "/home/lilybot/esp/esp-idf/components/newlib/src/abort.c", "/home/lilybot/esp/esp-idf/components/newlib/src/assert.c", "/home/lilybot/esp/esp-idf/components/newlib/src/heap.c", "/home/lilybot/esp/esp-idf/components/newlib/src/locks.c", "/home/lilybot/esp/esp-idf/components/newlib/src/poll.c", "/home/lilybot/esp/esp-idf/components/newlib/src/pthread.c", "/home/lilybot/esp/esp-idf/components/newlib/src/random.c", "/home/lilybot/esp/esp-idf/components/newlib/src/getentropy.c", "/home/lilybot/esp/esp-idf/components/newlib/src/termios.c", "/home/lilybot/esp/esp-idf/components/newlib/src/stdatomic.c", "/home/lilybot/esp/esp-idf/components/newlib/src/time.c", "/home/lilybot/esp/esp-idf/components/newlib/src/sysconf.c", "/home/lilybot/esp/esp-idf/components/newlib/src/realpath.c", "/home/lilybot/esp/esp-idf/components/newlib/src/scandir.c", "/home/lilybot/esp/esp-idf/components/newlib/src/syscalls.c", "/home/lilybot/esp/esp-idf/components/newlib/src/reent_syscalls.c", "/home/lilybot/esp/esp-idf/components/newlib/src/port/esp_time_impl.c", "/home/lilybot/esp/esp-idf/components/newlib/src/flockfile.c", "/home/lilybot/esp/esp-idf/components/newlib/src/reent_init.c", "/home/lilybot/esp/esp-idf/components/newlib/src/newlib_init.c", "/home/lilybot/esp/esp-idf/components/newlib/src/port/esp_time_impl.c" ],
+            "sources": [ "/home/lilybot/esp/esp-idf/components/newlib/src/init.c", "/home/lilybot/esp/esp-idf/components/newlib/src/abort.c", "/home/lilybot/esp/esp-idf/components/newlib/src/assert.c", "/home/lilybot/esp/esp-idf/components/newlib/src/heap.c", "/home/lilybot/esp/esp-idf/components/newlib/src/locks.c", "/home/lilybot/esp/esp-idf/components/newlib/src/poll.c", "/home/lilybot/esp/esp-idf/components/newlib/src/pthread.c", "/home/lilybot/esp/esp-idf/components/newlib/src/random.c", "/home/lilybot/esp/esp-idf/components/newlib/src/getentropy.c", "/home/lilybot/esp/esp-idf/components/newlib/src/termios.c", "/home/lilybot/esp/esp-idf/components/newlib/src/stdatomic.c", "/home/lilybot/esp/esp-idf/components/newlib/src/time.c", "/home/lilybot/esp/esp-idf/components/newlib/src/sysconf.c", "/home/lilybot/esp/esp-idf/components/newlib/src/realpath.c", "/home/lilybot/esp/esp-idf/components/newlib/src/scandir.c", "/home/lilybot/esp/esp-idf/components/newlib/src/syscalls.c", "/home/lilybot/esp/esp-idf/components/newlib/src/reent_syscalls.c", "/home/lilybot/esp/esp-idf/components/newlib/src/port/esp_time_impl.c", "/home/lilybot/esp/esp-idf/components/newlib/src/port/xtensa/stdatomic_s32c1i.c", "/home/lilybot/esp/esp-idf/components/newlib/src/flockfile.c", "/home/lilybot/esp/esp-idf/components/newlib/src/reent_init.c", "/home/lilybot/esp/esp-idf/components/newlib/src/newlib_init.c", "/home/lilybot/esp/esp-idf/components/newlib/src/port/esp_time_impl.c" ],
             "include_dirs": [ "platform_include" ]
         },
         "nvs_flash": {

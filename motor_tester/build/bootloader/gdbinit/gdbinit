@@ -1,0 +1,2 @@
+source /home/lilybot/firmware_project/motor_tester/build/bootloader/gdbinit/symbols
+source /home/lilybot/firmware_project/motor_tester/build/bootloader/gdbinit/connect
