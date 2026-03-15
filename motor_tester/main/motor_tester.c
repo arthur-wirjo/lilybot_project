@@ -17,23 +17,23 @@ static const char *TAG = "MOTOR_TEST";
 
 // Brake Pins
 #define BRA_PIN_1 42
-#define BRA_PIN_2 15
-#define BRA_PIN_3 16
+#define BRA_PIN_2 16
+#define BRA_PIN_3 15
 
 // Frequency Generator Pins
 #define FG_PIN_1 1
-#define FG_PIN_2 4
-#define FG_PIN_3 6
+#define FG_PIN_2 6
+#define FG_PIN_3 5
 
 // Forward/Reverse Pins
 #define FR_PIN_1 39
-#define FR_PIN_2 41
-#define FR_PIN_3 12
+#define FR_PIN_2 12
+#define FR_PIN_3 41
 
 // PWM Pins
 #define PWM_PIN_1 38
-#define PWM_PIN_2 40
-#define PWM_PIN_3 11
+#define PWM_PIN_2 11
+#define PWM_PIN_3 40
 
 // LEDC Configuration
 #define LEDC_TIMER      LEDC_TIMER_0
