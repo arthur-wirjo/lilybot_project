@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "motor_tester",
-    "project_version":    "777f886-dirty",
+    "project_version":    "dcd59d9-dirty",
     "project_path":       "/home/lilybot/firmware_project/motor_tester",
     "idf_path":           "/home/lilybot/esp/esp-idf",
     "build_dir":          "/home/lilybot/firmware_project/motor_tester/build",

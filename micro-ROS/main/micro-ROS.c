@@ -1,9 +1,10 @@
 // Documentation notes for self:
-// imu data publishing and github successfully set. will now go with motor control
+// make the micro-ROS work now with the pid and odometry
 
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <math.h>
 #include "esp_task_wdt.h"
 
 #include "freertos/FreeRTOS.h"
@@ -22,8 +23,11 @@
 
 #include <std_msgs/msg/string.h>
 #include <sensor_msgs/msg/imu.h>
+#include <geometry_msgs/msg/twist.h>
+#include <nav_msgs/msg/odometry.h>
 
 #include "mpu9250.h"
+#include "motor_control.h"
 
 // UART Configuration
 #define UART_PORT_NUM      UART_NUM_1
@@ -38,32 +42,30 @@
 #define I2C_MASTER_NUM     I2C_NUM_0
 #define I2C_MASTER_FREQ_HZ 50000 
 
-// Brake Pins
-#define BRA_PIN_1 42
-#define BRA_PIN_2 15
-#define BRA_PIN_3 16  
-
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Aborting.\n",__LINE__,(int)temp_rc);vTaskDelete(NULL);}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Continuing.\n",__LINE__,(int)temp_rc);}}
 
 rcl_publisher_t imu_publisher;
 sensor_msgs__msg__Imu imu_msg;
 
-// Brake Initialization
-void init_brakes() {
-    gpio_config_t io_conf = {};
-    io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = (1ULL << BRA_PIN_1) | (1ULL << BRA_PIN_2) | (1ULL << BRA_PIN_3);
-    io_conf.pull_down_en = 0;
-    io_conf.pull_up_en = 0;
-    gpio_config(&io_conf);
+rcl_publisher_t odom_publisher;
+nav_msgs__msg__Odometry odom_msg;
 
-    gpio_set_level(BRA_PIN_1, 0);
-    gpio_set_level(BRA_PIN_2, 0);
-    gpio_set_level(BRA_PIN_3, 0);
+rcl_subscription_t cmd_vel_subscriber;
+geometry_msgs__msg__Twist cmd_vel_msg;
 
-    printf("Brakes Engaged\n");
+// cmd_vel callback
+void cmd_vel_callback(const void * msgin) {
+    const geometry_msgs__msg__Twist * msg = (const geometry_msgs__msg__Twist *)msgin;
+    apply_cmd_vel(msg->linear.x, msg->linear.y, msg->angular.z);
+}
+
+// Helper function for Euler Yaw to Quaternion
+void euler_to_quat(float yaw, double* qx, double* qy, double* qz, double* qw) {
+    *qx = 0.0;
+    *qy = 0.0;
+    *qz = sin(yaw * 0.5);
+    *qw = cos(yaw * 0.5);
 }
 
 // Custom Transport Implementation
@@ -125,26 +127,87 @@ void micro_ros_task(void * arg) {
     }
     printf("Agent connected!\n");
 
-    // Create Node & Publisher
+    // Create Node
     RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
     rcl_node_t node;
     RCCHECK(rclc_node_init_default(&node, "esp32_s3_node", "", &support));
 
+    // Create Publishers
     RCCHECK(rclc_publisher_init_default(
         &imu_publisher,
         &node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
         "imu/data"));
 
-    // Allocate Frame ID
+    RCCHECK(rclc_publisher_init_default(
+        &odom_publisher, 
+        &node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
+        "odom"));
+
+    // Create Subscriber
+    RCCHECK(rclc_subscription_init_default(
+        &cmd_vel_subscriber,
+        &node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+        "cmd_vel"));
+
+    // Create Executor
+    rclc_executor_t executor;
+    RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator));
+    RCCHECK(rclc_executor_add_subscription(&executor, &cmd_vel_subscriber, &cmd_vel_msg, &cmd_vel_callback, ON_NEW_DATA));
+
+    // Allocate Frame ID / String
     imu_msg.header.frame_id.data = (char*)malloc(20 * sizeof(char));
     sprintf(imu_msg.header.frame_id.data, "imu_link");
     imu_msg.header.frame_id.size = strlen(imu_msg.header.frame_id.data);
     imu_msg.header.frame_id.capacity = 20;
 
+    odom_msg.header.frame_id.data = (char*)malloc(20 * sizeof(char));
+    sprintf(odom_msg.header.frame_id.data, "odom");
+    odom_msg.header.frame_id.size = strlen(odom_msg.header.frame_id.data);
+    odom_msg.header.frame_id.capacity = 20;
+
+    odom_msg.child_frame_id.data = (char*)malloc(20 * sizeof(char));
+    sprintf(odom_msg.child_frame_id.data, "base_link");
+    odom_msg.child_frame_id.size = strlen(odom_msg.child_frame_id.data);
+    odom_msg.child_frame_id.capacity = 20;
+
     // Main Loop
     while(1) {
+        rclc_executor_spin_some(&executor, RCL_MS_TO_NS(10));
+
+        // Fetch odometry
+        robot_odometry_t odom = get_odometry();
+
+        int64_t time_ns = rmw_uros_epoch_nanos();
+
+        // Populate odometry msg
+        odom_msg.header.stamp.sec = time_ns / 1000000000;
+        odom_msg.header.stamp.nanosec = time_ns % 1000000000;
+
+        odom_msg.pose.pose.position.x = odom.x;
+        odom_msg.pose.pose.position.y = odom.y;
+        odom_msg.pose.pose.position.z = 0.0;
+
+        double qx, qy, qz, qw;
+        euler_to_quat(odom.theta, &qx, &qy, &qz, &qw);
+        odom_msg.pose.pose.orientation.x = qx;
+        odom_msg.pose.pose.orientation.y = qy;
+        odom_msg.pose.pose.orientation.z = qz;
+        odom_msg.pose.pose.orientation.w = qw;
+
+        odom_msg.twist.twist.linear.x = odom.vx;
+        odom_msg.twist.twist.linear.y = odom.vy;
+        odom_msg.twist.twist.angular.z = odom.omega;
+
+        RCSOFTCHECK(rcl_publish(&odom_publisher, &odom_msg, NULL));
+
+        // Populate IMU msg
         if (mpu9250_update(&mpu_device) == ESP_OK) {
+            imu_msg.header.stamp.sec = time_ns / 1000000000;
+            imu_msg.header.stamp.nanosec = time_ns % 1000000000;
+
             // Convert Raw Data to SI Units
             imu_msg.linear_acceleration.x = (float)mpu_device.accel.x / 16384.0 * 9.81;
             imu_msg.linear_acceleration.y = (float)mpu_device.accel.y / 16384.0 * 9.81;
@@ -153,16 +216,13 @@ void micro_ros_task(void * arg) {
             imu_msg.angular_velocity.x = (float)mpu_device.gyro.x / 131.0 * 0.01745;
             imu_msg.angular_velocity.y = (float)mpu_device.gyro.y / 131.0 * 0.01745;
             imu_msg.angular_velocity.z = (float)mpu_device.gyro.z / 131.0 * 0.01745;
+
+            RCSOFTCHECK(rcl_publish(&imu_publisher, &imu_msg, NULL));
         } else {
             printf("I2C Read Error\n");
         }
 
-        int64_t time_ns = rmw_uros_epoch_nanos();
-        imu_msg.header.stamp.sec = time_ns / 1000000000;
-        imu_msg.header.stamp.nanosec = time_ns % 1000000000;
-
-        RCSOFTCHECK(rcl_publish(&imu_publisher, &imu_msg, NULL));
-        vTaskDelay(pdMS_TO_TICKS(10)); 
+        vTaskDelay(pdMS_TO_TICKS(20)); 
     }
     // Currently task will never end but useful for future
     RCCHECK(rcl_node_fini(&node));
@@ -171,7 +231,7 @@ void micro_ros_task(void * arg) {
 
 void app_main(void) {
     // Engage Brakes
-    init_brakes();
+    init_motors();
 
     // Initialize I2C on Core 0 directly in app main 
     // Because doing it as a task results in I2C not initializing properly

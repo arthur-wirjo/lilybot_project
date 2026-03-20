@@ -2,7 +2,9 @@
 #include <math.h>
 #include <stdlib.h>
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "driver/pulse_cnt.h"
@@ -62,7 +64,7 @@ static pid_controller_t pids[3] = {
 // Internal function to set raw PWM
 void set_motor_pwm(int id, float pwm_percent) {
     if (id < 1 || id > 3) {
-        printf("incorrect motor speed set\n")
+        printf("incorrect motor speed set\n");
         return;
     }
     if (pwm_percent > 100.0f) {
@@ -121,9 +123,9 @@ static void motor_control_task(void *arg) {
     while (1) {
         // Safety timeout: stop motor if no cmd_vel for 500ms
         if ((esp_timer_get_time() - last_cmd_vel_time) > 500000) {
-            target_wheel_speed[0] = 0.0f;
-            target_wheel_speed[1] = 0.0f;
-            target_wheel_speed[2] = 0.0f;
+            target_wheel_speeds[0] = 0.0f;
+            target_wheel_speeds[1] = 0.0f;
+            target_wheel_speeds[2] = 0.0f;
         }
 
         int pulse_counts[3] = {0};
@@ -145,9 +147,9 @@ static void motor_control_task(void *arg) {
         // V_y = (2/3) * (V1*cos(30) + V2*cos(150) + V3*cos(270))
         // Omega = (1/(3*R)) * (V1 + V2 + V3)
 
-        float v1 = wheel_speeds[0];
-        float v2 = wheel_speeds[1];
-        float v3 = wheel_speeds[2];
+        float v1 = actual_wheel_speeds[0];
+        float v2 = actual_wheel_speeds[1];
+        float v3 = actual_wheel_speeds[2];
 
         current_odom.vx = (2.0f / 3.0f) * (-0.5*v1 - 0.5*v2 + 1.0f*v3);
         current_odom.vy = (2.0f / 3.0f) * (0.866f*v1 - 0.866f*v2 + 0.0f*v3);
@@ -156,7 +158,7 @@ static void motor_control_task(void *arg) {
         // Integrate velocities to get position
         // and transform local velocities to global frame based on current theta
         float delta_x = (current_odom.vx * cosf(current_odom.theta) - current_odom.vy * sinf(current_odom.theta)) * dt;
-        float delta_y = (current_odom.vy * sinf(current_odom.theta) + current_odom.vy * cosf(current_odom.theat)) * dt;
+        float delta_y = (current_odom.vy * sinf(current_odom.theta) + current_odom.vy * cosf(current_odom.theta)) * dt;
         float delta_theta = current_odom.omega * dt;
 
         current_odom.x += delta_x;
@@ -164,16 +166,16 @@ static void motor_control_task(void *arg) {
         current_odom.theta += delta_theta;
 
         // Normalize theta between -PI and PI
-        if (current_odom.thea > M_PI) current_odom.thea -= 2.0f * M_PI;
-        if (current_odom.thea < -M_PI) current_odom.theta += 2.0f * M_PI;
+        if (current_odom.theta > M_PI) current_odom.theta -= 2.0f * M_PI;
+        if (current_odom.theta < -M_PI) current_odom.theta += 2.0f * M_PI;
 
         // Compute PID and apply PWM
         for (int i = 0; i < 3; i++) {
-            if (fabs(target_wheel_speed[i]) < 0.01f) {
-                set_motor_pwm[i+1, 0.0f];
+            if (fabs(target_wheel_speeds[i]) < 0.01f) {
+                set_motor_pwm(i+1, 0.0f);
                 pids[i].integral = 0;
             } else {
-                float pwm_output = compute_pid(&pids[i], target_wheel_speeds[i], actaul_wheel_speeds[i], dt);
+                float pwm_output = compute_pid(&pids[i], target_wheel_speeds[i], actual_wheel_speeds[i], dt);
                 set_motor_pwm(i+1, pwm_output);
             }
         }
@@ -182,7 +184,7 @@ static void motor_control_task(void *arg) {
     }
 }
 
-void init_motor(void) {
+void init_motors(void) {
     ESP_LOGI(TAG, "Initializing Motor GPIOs and PWM");
 
     // Configure BRA and FR pins as outputs

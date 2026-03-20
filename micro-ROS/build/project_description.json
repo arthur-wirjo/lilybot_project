@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "micro-ROS",
-    "project_version":    "1",
+    "project_version":    "dcd59d9-dirty",
     "project_path":       "/home/lilybot/firmware_project/micro-ROS",
     "idf_path":           "/home/lilybot/esp/esp-idf",
     "build_dir":          "/home/lilybot/firmware_project/micro-ROS/build",
@@ -1225,7 +1225,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "truita__mpu9250" ],
             "file": "/home/lilybot/firmware_project/micro-ROS/build/esp-idf/main/libmain.a",
-            "sources": [ "/home/lilybot/firmware_project/micro-ROS/main/micro-ROS.c" ],
+            "sources": [ "/home/lilybot/firmware_project/micro-ROS/main/micro-ROS.c", "/home/lilybot/firmware_project/micro-ROS/main/motor_control.c" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {
