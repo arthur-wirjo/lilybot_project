@@ -1,0 +1,2 @@
+stty -F /dev/ttyAMA0 115200
+echo "m1 50" > /dev/ttyAMA0

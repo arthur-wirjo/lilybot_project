@@ -17,7 +17,7 @@ static const char *TAG = "MOTOR_CTRL";
 // Frequency Generator Pins
 #define FG_PIN_1 1
 #define FG_PIN_2 6
-#define FG_PIN_3 5
+#define FG_PIN_3 4
 
 // Forward/Reverse Pins
 #define FR_PIN_1 39
