@@ -35,7 +35,7 @@ static const char *TAG = "MOTOR_CTRL";
 #define LEDC_TIMER      LEDC_TIMER_0
 #define LEDC_MODE       LEDC_LOW_SPEED_MODE
 #define LEDC_DUTY_RES   LEDC_TIMER_10_BIT
-#define LEDC_FREQUENCY  20000
+#define LEDC_FREQUENCY  20000 // Need to determine if 30KHz is better or worse
 
 const int BRA_PINS[3] = {BRA_PIN_1, BRA_PIN_2, BRA_PIN_3};
 const int FG_PINS[3] = {FG_PIN_1, FG_PIN_2, FG_PIN_3};
@@ -75,7 +75,7 @@ void set_motor_pwm(int id, float pwm_percent) {
 
     int index = id - 1;
 
-    if (fabs(pwm_percent < 1.0f)) {
+    if (fabs(pwm_percent) < 1.0f) {
         ledc_set_duty(LEDC_MODE, PWM_CHANNELS[index], 0);
         ledc_update_duty(LEDC_MODE, PWM_CHANNELS[index]);
         gpio_set_level(BRA_PINS[index], 0);
@@ -90,7 +90,7 @@ void set_motor_pwm(int id, float pwm_percent) {
             motor_directions[index] = -1;
         }
 
-        uint32_t duty = (abs(pwm_percent) * 1023.0f) / 100.0f;
+        uint32_t duty = (fabs(pwm_percent) * 1023.0f) / 100.0f;
         ledc_set_duty(LEDC_MODE, PWM_CHANNELS[index], duty);
         ledc_update_duty(LEDC_MODE, PWM_CHANNELS[index]);
     }
@@ -158,7 +158,7 @@ static void motor_control_task(void *arg) {
         // Integrate velocities to get position
         // and transform local velocities to global frame based on current theta
         float delta_x = (current_odom.vx * cosf(current_odom.theta) - current_odom.vy * sinf(current_odom.theta)) * dt;
-        float delta_y = (current_odom.vy * sinf(current_odom.theta) + current_odom.vy * cosf(current_odom.theta)) * dt;
+        float delta_y = (current_odom.vx * sinf(current_odom.theta) + current_odom.vy * cosf(current_odom.theta)) * dt;
         float delta_theta = current_odom.omega * dt;
 
         current_odom.x += delta_x;
@@ -255,7 +255,7 @@ void init_motors(void) {
         ESP_ERROR_CHECK(pcnt_unit_start(pcnt_units[i]));
     }
 
-    xTaskCreate(motor_control_task, "motor control task", 4096, NULL, 5, NULL);
+    xTaskCreate(motor_control_task, "motor control task", 4096, NULL, 6, NULL, 0);
 }
 
 void apply_cmd_vel(float linear_x, float linear_y, float angular_z) {

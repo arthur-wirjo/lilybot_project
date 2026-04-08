@@ -5,7 +5,7 @@
 
 // Kinematics geometry
 #define ROBOT_RADIUS 0.135f // 135mm
-#define WHEEL_RADIUS 0.0375f // 37.5cm
+#define WHEEL_RADIUS 0.0375f // 37.5mm
 #define MAX_WHEEL_SPEED 0.9f // 0.9m/s (actual max ~1.0m/s)
 
 // Encoder configuration
@@ -18,8 +18,6 @@ typedef struct{
     float kd;
     float integral;
     float prev_error;
-    float setpoint;
-    float current_val;
     float out_max;
     float out_min;
 } pid_controller_t;
@@ -34,12 +32,7 @@ typedef struct {
 } robot_odometry_t;
 
 void init_motors(void);
-
-void set_motor_speed(int motor_id, int speed);
-
 void apply_cmd_vel(float linear_x, float linear_y, float angular_z);
-
-void update_odometry(float dt);
 robot_odometry_t get_odometry(void);
 
 #endif // MOTOR_CONTROL_H
