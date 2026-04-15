@@ -255,7 +255,7 @@ void init_motors(void) {
         ESP_ERROR_CHECK(pcnt_unit_start(pcnt_units[i]));
     }
 
-    xTaskCreate(motor_control_task, "motor control task", 4096, NULL, 6, NULL, 0);
+    xTaskCreatePinnedToCore(motor_control_task, "motor control task", 4096, NULL, 6, NULL, 0);
 }
 
 void apply_cmd_vel(float linear_x, float linear_y, float angular_z) {
