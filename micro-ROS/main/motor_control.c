@@ -35,7 +35,10 @@ static const char *TAG = "MOTOR_CTRL";
 #define LEDC_TIMER      LEDC_TIMER_0
 #define LEDC_MODE       LEDC_LOW_SPEED_MODE
 #define LEDC_DUTY_RES   LEDC_TIMER_10_BIT
-#define LEDC_FREQUENCY  20000 // Need to determine if 30KHz is better or worse
+#define LEDC_FREQUENCY  20000 // Need to determine if 30KHz is better or worse later
+
+// Speed measurement low-pass filter coefficient (0.0 - 1.0), lower = smoother but laggier
+#define SPEED_FILTER_ALPHA 0.3f
 
 const int BRA_PINS[3] = {BRA_PIN_1, BRA_PIN_2, BRA_PIN_3};
 const int FG_PINS[3] = {FG_PIN_1, FG_PIN_2, FG_PIN_3};
@@ -49,6 +52,7 @@ static pcnt_unit_handle_t pcnt_units[3];
 // State variables
 static int motor_directions[3] = {1, 1, 1};
 static robot_odometry_t current_odom = {0};
+static float filtered_speeds[3] = {0.0f, 0.0f, 0.0f};
 
 // PID and Target variables
 static float target_wheel_speeds[3] = {0.0f, 0.0f, 0.0f};
@@ -56,9 +60,9 @@ static int64_t last_cmd_vel_time = 0;
 
 // PID Controllers
 static pid_controller_t pids[3] = {
-    {.kp = 50.0f, .ki = 10.0f, .kd = 1.0f, .integral = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
-    {.kp = 50.0f, .ki = 10.0f, .kd = 1.0f, .integral = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
-    {.kp = 50.0f, .ki = 10.0f, .kd = 1.0f, .integral = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f}
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f},
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f},
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f}
 };
 
 // Internal function to set raw PWM
@@ -102,16 +106,20 @@ static float compute_pid(pid_controller_t *pid, float setpoint, float measured, 
     pid->integral += error * dt;
     
     // Anti-windup
-    if (pid->integral > 50.0f) pid->integral = 50.0f;
-    if (pid->integral < -50.0f) pid->integral = -50.0f;
+    float integral_limit = pid->out_max / pid->ki;
+    if (pid->integral > integral_limit) pid->integral = integral_limit;
+    if (pid->integral < -integral_limit) pid->integral = -integral_limit;
 
-    float derivative = (error - pid->prev_error) / dt;
+    float derivative = -(measured - pid->prev_measured) / dt;
     float output = (pid->kp * error) + (pid->ki * pid->integral) + (pid->kd * derivative);
     
-    if (output > pid->out_max) output = pid->out_max;
-    else if (output < pid->out_min) output = pid->out_min;
-    
+    if (output > pid->out_max) {
+        output = pid->out_max;
+    } else if (output < pid->out_min) {
+        output = pid->out_min;
+    }
     pid->prev_error = error;
+    pid->prev_measured = measured;
     return output;
 }
 
@@ -136,14 +144,23 @@ static void motor_control_task(void *arg) {
             pcnt_unit_get_count(pcnt_units[i], &pulse_counts[i]);
             pcnt_unit_clear_count(pcnt_units[i]);
 
-            int signed_pulses = pulse_counts[i] * motor_directions[i];
+            if (target_wheel_speeds[i] >= 0) {
+                int target_dir = 1;
+            } else {
+                int target_dir = -1;
+            }
+            int signed_pulses = pulse_counts[i] * target_dir;
             float revolutions = (float)signed_pulses / (PULSES_PER_REV * GEAR_RATIO);
             float distance = revolutions * (2.0f * M_PI * WHEEL_RADIUS);
-            actual_wheel_speeds[i] = distance / dt;
+            float raw_speed = distance / dt;
+
+            // Low-pass filter to smooth encoder quantization noise
+            filtered_speeds[i] = SPEED_FILTER_ALPHA * raw_speed + (1.0f - SPEED_FILTER_ALPHA) * filtered_speeds[i];
+            actual_wheel_speeds[i] = filtered_speeds[i];
         }
 
         // Update Odometry (Forward kinematics)
-        // V_x = (2/3) * (-V1*sin(30) - V2*sin(150) + V3*sin(270))
+        // V_x = (2/3) * (-V1*sin(30) - V2*sin(150) - V3*sin(270))
         // V_y = (2/3) * (V1*cos(30) + V2*cos(150) + V3*cos(270))
         // Omega = (1/(3*R)) * (V1 + V2 + V3)
 
@@ -169,14 +186,21 @@ static void motor_control_task(void *arg) {
         if (current_odom.theta > M_PI) current_odom.theta -= 2.0f * M_PI;
         if (current_odom.theta < -M_PI) current_odom.theta += 2.0f * M_PI;
 
-        // Compute PID and apply PWM
+        // Compute feedforward + PID and apply PWM
         for (int i = 0; i < 3; i++) {
             if (fabs(target_wheel_speeds[i]) < 0.01f) {
                 set_motor_pwm(i+1, 0.0f);
-                pids[i].integral = 0;
+                pids[i].integral = 0.0f;
+                pids[i].prev_error = 0.0f;
+                pids[i].prev_measured = 0.0f;
+                filtered_speeds[i] = 0.0f;
             } else {
-                float pwm_output = compute_pid(&pids[i], target_wheel_speeds[i], actual_wheel_speeds[i], dt);
-                set_motor_pwm(i+1, pwm_output);
+                float feedforward = (target_wheel_speeds[i] / MAX_WHEEL_SPEED) * 100.0f; 
+                float pid_output = compute_pid(&pids[i], target_wheel_speeds[i], actual_wheel_speeds[i], dt);
+                float total_output = feedforward + pid_output;
+                if (total_output > 100.0f) total_output = 100.0f;
+                if (total_output < -100.0f) total_output = -100.0f;
+                set_motor_pwm(i+1, total_output);
             }
         }
 

@@ -18,6 +18,7 @@ typedef struct{
     float kd;
     float integral;
     float prev_error;
+    float prev_measured;
     float out_max;
     float out_min;
 } pid_controller_t;
