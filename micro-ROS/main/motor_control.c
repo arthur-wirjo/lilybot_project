@@ -35,10 +35,7 @@ static const char *TAG = "MOTOR_CTRL";
 #define LEDC_TIMER      LEDC_TIMER_0
 #define LEDC_MODE       LEDC_LOW_SPEED_MODE
 #define LEDC_DUTY_RES   LEDC_TIMER_10_BIT
-#define LEDC_FREQUENCY  20000 // Need to determine if 30KHz is better or worse later
-
-// Speed measurement low-pass filter coefficient (0.0 - 1.0), lower = smoother but laggier
-#define SPEED_FILTER_ALPHA 0.3f
+#define LEDC_FREQUENCY  30000
 
 const int BRA_PINS[3] = {BRA_PIN_1, BRA_PIN_2, BRA_PIN_3};
 const int FG_PINS[3] = {FG_PIN_1, FG_PIN_2, FG_PIN_3};
@@ -50,54 +47,50 @@ const ledc_channel_t PWM_CHANNELS[3] = {LEDC_CHANNEL_0, LEDC_CHANNEL_1, LEDC_CHA
 static pcnt_unit_handle_t pcnt_units[3];
 
 // State variables
-static int motor_directions[3] = {1, 1, 1};
 static robot_odometry_t current_odom = {0};
-static float filtered_speeds[3] = {0.0f, 0.0f, 0.0f};
+static float filtered_speeds[3] = {0};
+static float ramped_speeds[3] = {0};
 
 // PID and Target variables
-static float target_wheel_speeds[3] = {0.0f, 0.0f, 0.0f};
+static float target_wheel_speeds[3] = {0};
 static int64_t last_cmd_vel_time = 0;
 
 // PID Controllers
 static pid_controller_t pids[3] = {
-    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f},
-    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f},
-    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f}
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f},
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f},
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f}
 };
 
-// Internal function to set raw PWM
-void set_motor_pwm(int id, float pwm_percent) {
-    if (id < 1 || id > 3) {
+// Internal functions to set raw PWM
+static void drive_motor(int motor_index, float pwm_percent) {
+    if (motor_index < 0 || motor_index > 2) {
         printf("incorrect motor speed set\n");
         return;
     }
+
     if (pwm_percent > 100.0f) {
         pwm_percent = 100.0f;
     } else if (pwm_percent < -100.0f) {
         pwm_percent = -100.0;
     }
 
-    int index = id - 1;
-
-    if (fabs(pwm_percent) < 1.0f) {
-        ledc_set_duty(LEDC_MODE, PWM_CHANNELS[index], 0);
-        ledc_update_duty(LEDC_MODE, PWM_CHANNELS[index]);
-        gpio_set_level(BRA_PINS[index], 0);
-        motor_directions[index] = 1;
+    gpio_set_level(BRA_PINS[motor_index], 1);
+    if (pwm_percent > 0) {
+        gpio_set_level(FR_PINS[motor_index], 0);
     } else {
-        gpio_set_level(BRA_PINS[index], 1);
-        if (pwm_percent > 0) {
-            gpio_set_level(FR_PINS[index], 0);
-            motor_directions[index] = 1;
-        } else {
-            gpio_set_level(FR_PINS[index], 1);
-            motor_directions[index] = -1;
-        }
-
-        uint32_t duty = (fabs(pwm_percent) * 1023.0f) / 100.0f;
-        ledc_set_duty(LEDC_MODE, PWM_CHANNELS[index], duty);
-        ledc_update_duty(LEDC_MODE, PWM_CHANNELS[index]);
+        gpio_set_level(FR_PINS[motor_index], 1);
     }
+
+    uint32_t duty = (uint32_t)((fabsf(pwm_percent) * 1023.0f) / 100.0f);
+    ledc_set_duty(LEDC_MODE, PWM_CHANNELS[motor_index], duty);
+    ledc_update_duty(LEDC_MODE, PWM_CHANNELS[motor_index]);
+}
+
+static void brake_motor(int motor_index){
+    ledc_set_duty(LEDC_MODE, PWM_CHANNELS[motor_index], 0);
+    ledc_update_duty(LEDC_MODE, PWM_CHANNELS[motor_index]);
+    gpio_set_level(BRA_PINS[motor_index], 0);
 }
 
 // PID Computation
@@ -126,6 +119,7 @@ static float compute_pid(pid_controller_t *pid, float setpoint, float measured, 
 // FreeRTOS task for odometry and PID
 static void motor_control_task(void *arg) {
     const float dt = 0.02f; // 50Hz loop
+    const float max_speed_delta = MAX_ACCEL * dt;
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     while (1) {
@@ -136,6 +130,16 @@ static void motor_control_task(void *arg) {
             target_wheel_speeds[2] = 0.0f;
         }
 
+        for (int i = 0; i < 3; i++) {
+            float diff = target_wheel_speeds[i] - ramped_speeds[i];
+            if (diff > max_speed_delta) {
+                diff = max_speed_delta;
+            } else if (diff < -max_speed_delta) {
+                diff = -max_speed_delta;
+            }
+            ramped_speeds[i] += diff;
+        }
+        
         int pulse_counts[3] = {0};
         float actual_wheel_speeds[3] = {0};
 
@@ -143,12 +147,12 @@ static void motor_control_task(void *arg) {
         for (int i = 0; i < 3; i++) {
             pcnt_unit_get_count(pcnt_units[i], &pulse_counts[i]);
             pcnt_unit_clear_count(pcnt_units[i]);
-
-            if (target_wheel_speeds[i] >= 0) {
-                int target_dir = 1;
-            } else {
-                int target_dir = -1;
+            
+            int target_dir = 1;
+            if (ramped_speeds[i] < 0) {
+                target_dir = -1;
             }
+
             int signed_pulses = pulse_counts[i] * target_dir;
             float revolutions = (float)signed_pulses / (PULSES_PER_REV * GEAR_RATIO);
             float distance = revolutions * (2.0f * M_PI * WHEEL_RADIUS);
@@ -160,16 +164,12 @@ static void motor_control_task(void *arg) {
         }
 
         // Update Odometry (Forward kinematics)
-        // V_x = (2/3) * (-V1*sin(30) - V2*sin(150) - V3*sin(270))
-        // V_y = (2/3) * (V1*cos(30) + V2*cos(150) + V3*cos(270))
-        // Omega = (1/(3*R)) * (V1 + V2 + V3)
-
         float v1 = actual_wheel_speeds[0];
         float v2 = actual_wheel_speeds[1];
         float v3 = actual_wheel_speeds[2];
 
-        current_odom.vx = (2.0f / 3.0f) * (-0.5*v1 - 0.5*v2 + 1.0f*v3);
-        current_odom.vy = (2.0f / 3.0f) * (0.866f*v1 - 0.866f*v2 + 0.0f*v3);
+        current_odom.vx = (2.0f / 3.0f) * (0.866f*v1 - 0.866f*v2 + 0.0f*v3);
+        current_odom.vy = (2.0f / 3.0f) * (0.5f*v1 + 0.5f*v2 - 1.0f*v3);
         current_odom.omega = (v1 + v2 + v3) / (3.0f * ROBOT_RADIUS);
 
         // Integrate velocities to get position
@@ -183,24 +183,24 @@ static void motor_control_task(void *arg) {
         current_odom.theta += delta_theta;
 
         // Normalize theta between -PI and PI
-        if (current_odom.theta > M_PI) current_odom.theta -= 2.0f * M_PI;
-        if (current_odom.theta < -M_PI) current_odom.theta += 2.0f * M_PI;
+        while (current_odom.theta > M_PI) current_odom.theta -= 2.0f * M_PI;
+        while (current_odom.theta < -M_PI) current_odom.theta += 2.0f * M_PI;
 
         // Compute feedforward + PID and apply PWM
         for (int i = 0; i < 3; i++) {
-            if (fabs(target_wheel_speeds[i]) < 0.01f) {
-                set_motor_pwm(i+1, 0.0f);
+            if (fabsf(ramped_speeds[i]) < 0.005f) {
+                brake_motor(i);
                 pids[i].integral = 0.0f;
                 pids[i].prev_error = 0.0f;
                 pids[i].prev_measured = 0.0f;
                 filtered_speeds[i] = 0.0f;
             } else {
-                float feedforward = (target_wheel_speeds[i] / MAX_WHEEL_SPEED) * 100.0f; 
-                float pid_output = compute_pid(&pids[i], target_wheel_speeds[i], actual_wheel_speeds[i], dt);
+                float feedforward = (ramped_speeds[i] / MAX_WHEEL_SPEED) * 100.0f; 
+                float pid_output = compute_pid(&pids[i], ramped_speeds[i], actual_wheel_speeds[i], dt);
                 float total_output = feedforward + pid_output;
                 if (total_output > 100.0f) total_output = 100.0f;
                 if (total_output < -100.0f) total_output = -100.0f;
-                set_motor_pwm(i+1, total_output);
+                drive_motor(i, total_output);
             }
         }
 
@@ -271,8 +271,8 @@ void init_motors(void) {
         pcnt_channel_handle_t pcnt_chan = NULL;
         ESP_ERROR_CHECK(pcnt_new_channel(pcnt_units[i], &chan_config, &pcnt_chan));
 
-        // Count on rising edge
-        ESP_ERROR_CHECK(pcnt_channel_set_edge_action(pcnt_chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_HOLD));
+        // Count on both rising and falling edge
+        ESP_ERROR_CHECK(pcnt_channel_set_edge_action(pcnt_chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_INCREASE));
         
         ESP_ERROR_CHECK(pcnt_unit_enable(pcnt_units[i]));
         ESP_ERROR_CHECK(pcnt_unit_clear_count(pcnt_units[i]));
@@ -285,11 +285,11 @@ void init_motors(void) {
 void apply_cmd_vel(float linear_x, float linear_y, float angular_z) {
     // Inverse Kinematics for 3-wheel omni (120 degrees apart)
     // Wheel 1 (front right -30 deg) Wheel 2 (front left -150 deg) Wheel 3 (back -270 deg)
-    float w1 = -0.5f * linear_x + 0.866f * linear_y + ROBOT_RADIUS * angular_z;
-    float w2 = -0.5f * linear_x - 0.866f * linear_y + ROBOT_RADIUS * angular_z;
-    float w3 = 1.0f * linear_x + 0.0f * linear_y + ROBOT_RADIUS * angular_z;
+    float w1 = 0.866f * linear_x + 0.5f * linear_y + ROBOT_RADIUS * angular_z;
+    float w2 = -0.866f * linear_x + 0.5f * linear_y + ROBOT_RADIUS * angular_z;
+    float w3 = 0.0f * linear_x + -1.0f * linear_y + ROBOT_RADIUS * angular_z;
 
-    float max_w = fmaxf(fmaxf(fabs(w1), fabs(w2)), fabs(w3));
+    float max_w = fmaxf(fmaxf(fabsf(w1), fabsf(w2)), fabsf(w3));
     if (max_w > MAX_WHEEL_SPEED) {
         w1 = (w1 / max_w) * MAX_WHEEL_SPEED;
         w2 = (w2 / max_w) * MAX_WHEEL_SPEED;

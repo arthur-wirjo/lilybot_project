@@ -9,8 +9,12 @@
 #define MAX_WHEEL_SPEED 0.9f // 0.9m/s (actual max ~1.0m/s)
 
 // Encoder configuration
-#define PULSES_PER_REV 6.0f // 6 pulse/rev
+#define PULSES_PER_REV 12.0f // 6 pulse/rev
 #define GEAR_RATIO 50.0f // 1:50 Reduction Ratio
+
+// Acceleration and speed limit config
+#define MAX_ACCEL 1.5f
+#define SPEED_FILTER_ALPHA 0.3f
 
 typedef struct{
     float kp;
