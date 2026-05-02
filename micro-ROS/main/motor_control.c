@@ -35,7 +35,7 @@ static const char *TAG = "MOTOR_CTRL";
 #define LEDC_TIMER      LEDC_TIMER_0
 #define LEDC_MODE       LEDC_LOW_SPEED_MODE
 #define LEDC_DUTY_RES   LEDC_TIMER_10_BIT
-#define LEDC_FREQUENCY  30000
+#define LEDC_FREQUENCY  20000
 
 const int BRA_PINS[3] = {BRA_PIN_1, BRA_PIN_2, BRA_PIN_3};
 const int FG_PINS[3] = {FG_PIN_1, FG_PIN_2, FG_PIN_3};
@@ -57,9 +57,9 @@ static int64_t last_cmd_vel_time = 0;
 
 // PID Controllers
 static pid_controller_t pids[3] = {
-    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f},
-    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f},
-    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 50.0f, .out_min = -50.0f}
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
+    {.kp = 50.0f, .ki = 10.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f}
 };
 
 // Internal functions to set raw PWM
@@ -194,13 +194,11 @@ static void motor_control_task(void *arg) {
                 pids[i].prev_error = 0.0f;
                 pids[i].prev_measured = 0.0f;
                 filtered_speeds[i] = 0.0f;
-            } else {
-                float feedforward = (ramped_speeds[i] / MAX_WHEEL_SPEED) * 100.0f; 
+            } else { 
                 float pid_output = compute_pid(&pids[i], ramped_speeds[i], actual_wheel_speeds[i], dt);
-                float total_output = feedforward + pid_output;
-                if (total_output > 100.0f) total_output = 100.0f;
-                if (total_output < -100.0f) total_output = -100.0f;
-                drive_motor(i, total_output);
+                if (pid_output > 100.0f) pid_output = 100.0f;
+                if (pid_output < -100.0f) pid_output = -100.0f;
+                drive_motor(i, pid_output);
             }
         }
 
