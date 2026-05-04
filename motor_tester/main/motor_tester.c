@@ -133,7 +133,7 @@ void init_motors(void) {
         };
         pcnt_channel_handle_t pcnt_chan = NULL;
         ESP_ERROR_CHECK(pcnt_new_channel(pcnt_units[i], &chan_config, &pcnt_chan));
-        ESP_ERROR_CHECK(pcnt_channel_set_edge_action(pcnt_chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_HOLD));
+        ESP_ERROR_CHECK(pcnt_channel_set_edge_action(pcnt_chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_INCREASE));
 
         ESP_ERROR_CHECK(pcnt_unit_enable(pcnt_units[i]));
         ESP_ERROR_CHECK(pcnt_unit_clear_count(pcnt_units[i]));
