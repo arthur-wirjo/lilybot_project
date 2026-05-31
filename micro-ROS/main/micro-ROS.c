@@ -1,5 +1,5 @@
 // Documentation notes for self:
-// make the micro-ROS work now with the pid and odometry
+// make the micro-ROS motion control work
 
 #include <string.h>
 #include <stdio.h>

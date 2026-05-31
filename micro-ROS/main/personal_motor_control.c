@@ -52,10 +52,11 @@ static float filtered_speeds[3] = {0};
 
 // PID and Target variables
 static float target_wheel_speeds[3] = {0};
+static float target_ramp_speeds[3] = {0};
 static int64_t last_cmd_vel_time = 0;
 
 // Feedforward Gain
-static float K_ff = 0.8f;
+static float K_ff = 1.0f;
 
 // PID Controllers
 static pid_controller_t pids[3] = {
@@ -74,14 +75,13 @@ static void set_pwm(int motor_index, float pid_output) {
     gpio_set_level(BRA_PINS[motor_index], 1);
 
     float duty_cycle = 0.0f;
-    if (pid_output > 0.1f) {
+    if (pid_output > 0.01f) {
         duty_cycle = 25.0f + fabsf(pid_output)*((67.0f - 25.0f)/100.0f);
     }
     if (duty_cycle > 67.0f) {
         duty_cycle = 67.0f;
     }
 
-    printf("raw: %f, duty: %f\n", pid_output, duty_cycle);
     uint32_t duty = (uint32_t)(duty_cycle*(1023.0f/100.0f));
     ledc_set_duty(LEDC_MODE, PWM_CHANNELS[motor_index], duty);
     ledc_update_duty(LEDC_MODE, PWM_CHANNELS[motor_index]);
@@ -132,11 +132,28 @@ static void motor_control_task(void *arg) {
         if ((esp_timer_get_time() - last_cmd_vel_time) > 1000000) { // 1000ms
             for (int i = 0; i < 3; i++) {
                 target_wheel_speeds[i] = 0.0f;
-                brake_motor(i);
-                pids[i].integral = 0.0f;
-                pids[i].prev_error = 0.0f;
-                pids[i].prev_measured = 0.0f;
             }
+        }
+
+        // Proportional Acceleration Limiting
+        float speed_diffs[3];
+        float max_diff = 0.0f;
+
+        for (int i = 0; i < 3; i++) {
+            speed_diffs[i] = target_wheel_speeds[i] - target_ramp_speeds[i];
+            if (fabsf(speed_diffs[i]) > max_diff) {
+                max_diff = fabsf(speed_diffs[i]);
+            }
+        }
+
+        float max_allowed_diff = MAX_WHEEL_ACCEL * dt;
+        float scale_factor = 1.0f;
+        if (max_diff > max_allowed_diff) {
+            scale_factor = max_allowed_diff / max_diff;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            target_ramp_speeds[i] += speed_diffs[i] * scale_factor;
         }
 
         // Encoder
@@ -164,12 +181,23 @@ static void motor_control_task(void *arg) {
         current_odom.vy = (2.0f / 3.0f) * (0.5f*v1 + 0.5f*v2 - 1.0f*v3);
         current_odom.omega = (v1 + v2 + v3) / (3.0f * ROBOT_RADIUS);
 
-        float delta_x = (current_odom.vx * cosf(current_odom.theta) - current_odom.vy * sinf(current_odom.theta)) * dt;
-        float delta_y = (current_odom.vx * sinf(current_odom.theta) + current_odom.vy * cosf(current_odom.theta)) * dt;
         float delta_theta = current_odom.omega * dt;
+        float dx_local;
+        float dy_local;
 
-        current_odom.x += delta_x;
-        current_odom.y += delta_y;
+        if (fabsf(current_odom.omega) > 0.001f) {
+            dx_local = (current_odom.vx * sinf(delta_theta) + current_odom.vy * (cosf(delta_theta) - 1.0f)) / current_odom.omega;
+            dy_local = (current_odom.vx * (1.0f - cosf(delta_theta)) + current_odom.vy * sinf(delta_theta)) / current_odom.omega;
+        } else {
+            dx_local = current_odom.vx * dt;
+            dy_local = current_odom.vy * dt;
+        }
+
+        float global_dx = dx_local * cosf(current_odom.theta) - dy_local * sinf(current_odom.theta);
+        float global_dy = dx_local * sinf(current_odom.theta) + dy_local * cosf(current_odom.theta);
+
+        current_odom.x += global_dx;
+        current_odom.y += global_dy;
         current_odom.theta += delta_theta;
 
         // Normalize theta between -PI and PI
@@ -178,19 +206,19 @@ static void motor_control_task(void *arg) {
 
         // Compute PID and Apply PWM
         for (int i = 0; i < 3; i++) {
-            if (fabsf(target_wheel_speeds[i]) < 0.001f) {
+            if (fabsf(target_ramp_speeds[i]) < 0.001f && fabsf(target_wheel_speeds[i]) < 0.001f) {
                 brake_motor(i);
                 pids[i].integral = 0.0f;
                 pids[i].prev_measured = fabsf(actual_wheel_speeds[i]);
             } else {
-                if (target_wheel_speeds[i] >= 0) {
+                if (target_ramp_speeds[i] >= 0) {
                     gpio_set_level(FR_PINS[i], 0);
                     current_motor_dir[i] = 1;
                 } else {
                     gpio_set_level(FR_PINS[i], 1);
                     current_motor_dir[i] = -1;
                 }
-                float abs_target = fabsf(target_wheel_speeds[i]);
+                float abs_target = fabsf(target_ramp_speeds[i]);
                 float abs_measured = fabsf(actual_wheel_speeds[i]);
 
                 // PID
@@ -202,7 +230,7 @@ static void motor_control_task(void *arg) {
                 if (total_output < 0.0f) {
                     total_output = 0.0f;
                 }
-                printf("Tgt: %.2f | Meas: %.2f | PID Out: %.2f\n", abs_target, abs_measured, total_output);
+                printf("Motor: %d | Target: %.2f | Measured: %.2f | PID Out: %.2f\n", i, abs_target, abs_measured, total_output);
                 set_pwm(i, total_output);
             }
         }

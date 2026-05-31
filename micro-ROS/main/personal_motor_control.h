@@ -5,7 +5,8 @@
 #define ROBOT_RADIUS 0.135f // 135mm
 #define WHEEL_RADIUS 0.0375f // 37.5mm
 #define MAX_WHEEL_SPEED 0.5f // 0.5m/s 
-#define PULSES_PER_REV 12.0f 
+#define MAX_WHEEL_ACCEL 0.5f // 0.5m/s^2
+#define PULSES_PER_REV 12.0f // 6 pulses per rev but count rising and falling edge
 #define GEAR_RATIO 50.0f // 1:50 Reduction
 
 typedef struct {
