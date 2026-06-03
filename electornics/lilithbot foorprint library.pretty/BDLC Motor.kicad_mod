@@ -1,0 +1,165 @@
+(footprint "BDLC Motor"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0.73 -2.254 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "95bbc17d-0687-4f6a-811e-be9f4d2910cd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "BDLC Motor"
+		(at 0.254 -6.096 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "35aa8624-64fb-46b5-b119-4302d4f58dab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "c053a712-4827-449f-87b0-02b433004cfb")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "10b98e69-af56-4369-a766-67dbccdc65dd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_rect
+		(start -5.08 -3.048)
+		(end 5.588 2.286)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "2278f8f8-9e22-47e7-8398-5b418a5d48d5")
+	)
+	(fp_text user "FG"
+		(at -2.032 2.032 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "1672918e-4405-4922-b326-e8a7abc75210")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.1)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "F/R"
+		(at 0 2.032 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "28534561-8a8a-4ccf-90cc-58c07c61694b")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.1)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "BRA"
+		(at -4.826 2.032 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "5edd1a29-cbf2-4bbd-9d9d-8ae95f4e797d")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.1)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "PWM"
+		(at 2.794 2.032 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "c230da09-ebfb-4a6f-947c-bf72e7e52621")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.1)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0.508 -4.318 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "4a5345fa-2b35-4f9f-9745-457159125d0c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole circle
+		(at -3.81 -0.254)
+		(size 1.8 1.8)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "ede8e868-3db5-4662-a9ac-a29ad075054d")
+	)
+	(pad "2" thru_hole circle
+		(at -1.27 -0.254)
+		(size 1.8 1.8)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "3b178a21-3852-4bf0-943f-ad4df2ec950f")
+	)
+	(pad "3" thru_hole circle
+		(at 1.27 -0.254)
+		(size 1.8 1.8)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "646f073f-dc62-4dde-87af-9d2d29d07eec")
+	)
+	(pad "4" thru_hole circle
+		(at 3.81 -0.254)
+		(size 1.8 1.8)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "51b6646f-d25e-4db1-b32d-e5e0806b641b")
+	)
+	(embedded_fonts no)
+)

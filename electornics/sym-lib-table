@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "lilithbot symbol library")(type "KiCad")(uri "${KIPRJMOD}/lilithbot symbol library.kicad_sym")(options "")(descr ""))
+)
