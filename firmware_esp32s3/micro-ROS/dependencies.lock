@@ -1,0 +1,17 @@
+dependencies:
+  idf:
+    source:
+      type: idf
+    version: 5.5.0
+  truita/mpu9250:
+    dependencies: []
+    source:
+      path: /home/lilybot/lilybot_project/firmware_esp32s3/micro-ROS/components/truita__mpu9250
+      type: local
+    version: 1.0.1
+direct_dependencies:
+- idf
+- truita/mpu9250
+manifest_hash: 29c1283863ecbcf35c373d5d4c226fd7f10907f67049cc7483949d48be6364ba
+target: esp32s3
+version: 2.0.0
