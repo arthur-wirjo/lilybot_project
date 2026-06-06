@@ -55,29 +55,32 @@ static float target_wheel_speeds[3] = {0};
 static float target_ramp_speeds[3] = {0};
 static int64_t last_cmd_vel_time = 0;
 
-// Feedforward Gain
-static float K_linear = 0.3f;
-static float K_quadratic = 0.9f;
-
 // PID Controllers
 static pid_controller_t pids[3] = {
-    {.kp = 150.0f, .ki = 80.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
-    {.kp = 150.0f, .ki = 80.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
-    {.kp = 150.0f, .ki = 80.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f}
+    {.kp = 0.0f, .ki = 0.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
+    {.kp = 0.0f, .ki = 0.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
+    {.kp = 0.0f, .ki = 0.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f}
 };
 
-// PID output to PWM
-static void set_pwm(int motor_index, float pid_output) {
+// Feedforward 1D Lookup Table
+static const float lut_pulses[3][43] = {
+    {0.0f, 52.0f, 84.0f, 128.0f, 167.0f, 201.0f, 249.0f, 290.0f, 331.0f, 360.0f, 394.0f, 422.0f, 442.0f, 451.0f, 493.0f, 522.0f, 541.0f, 570.0f, 602.0f, 603.0f, 645.0f, 664.0f, 693.0f, 722.0f, 723.0f, 764.0f, 789.0f, 809.0f, 841.0f, 842.0f, 888.0f, 889.0f, 931.0f, 968.0f, 969.0f, 1011.0f, 1030.0f, 1059.0f, 1094.0f, 1095.0f, 1135.0f, 1136.0f, 1137.0f},
+    {0.0f, 63.0f, 110.0f, 147.0f, 176.0f, 219.0f, 257.0f, 297.0f, 329.0f, 358.0f, 382.0f, 401.0f, 430.0f, 463.0f, 464.0f, 510.0f, 529.0f, 558.0f, 562.0f, 609.0f, 628.0f, 652.0f, 670.0f, 707.0f, 708.0f, 749.0f, 777.0f, 796.0f, 829.0f, 830.0f, 876.0f, 895.0f, 924.0f, 956.0f, 957.0f, 998.0f, 1017.0f, 1053.0f, 1056.0f, 1101.0f, 1126.0f, 1132.0f, 1133.0f},
+    {0.0f, 52.0f, 85.0f, 119.0f, 158.0f, 201.0f, 239.0f, 282.0f, 311.0f, 360.0f, 361.0f, 404.0f, 423.0f, 466.0f, 467.0f, 521.0f, 542.0f, 543.0f, 585.0f, 613.0f, 631.0f, 660.0f, 693.0f, 694.0f, 736.0f, 754.0f, 784.0f, 808.0f, 809.0f, 850.0f, 877.0f, 896.0f, 928.0f, 929.0f, 976.0f, 999.0f, 1023.0f, 1027.0f, 1075.0f, 1102.0f, 1127.0f, 1131.0f, 1132.0f}
+};
+
+// Control output to PWM
+static void set_pwm(int motor_index, float total_output) {
     if(motor_index <= -1 || motor_index >= 3) {
-        ESP_LOGI("motor_ctrl/set_pwm", "incorrect motor speed set");
+        ESP_LOGE("motor_ctrl/set_pwm", "incorrect motor speed set");
         return;     
     }
 
     gpio_set_level(BRA_PINS[motor_index], 1);
 
     float duty_cycle = 0.0f;
-    if (pid_output > 0.01f) {
-        duty_cycle = 25.0f + fabsf(pid_output)*((67.0f - 25.0f)/100.0f);
+    if (total_output > 0.01f) {
+        duty_cycle = 25.0f + fabsf(total_output)*((67.0f - 25.0f)/100.0f);
     }
     if (duty_cycle > 67.0f) {
         duty_cycle = 67.0f;
@@ -86,6 +89,36 @@ static void set_pwm(int motor_index, float pid_output) {
     uint32_t duty = (uint32_t)(duty_cycle*(1023.0f/100.0f));
     ledc_set_duty(LEDC_MODE, PWM_CHANNELS[motor_index], duty);
     ledc_update_duty(LEDC_MODE, PWM_CHANNELS[motor_index]);
+}
+
+static float get_feedforward(int motor_index, float target_speed) {
+    if (target_speed < 0.001f) return 0.0f;
+    if(motor_index <= -1 || motor_index >= 3) {
+        ESP_LOGE("motor_ctrl/set_pwm", "incorrect motor speed set");
+        return 0.0f;     
+    }
+    float conv_factor = (2.0f * PI * WHEEL_RADIUS) / (PULSES_PER_REV * GEAR_RATIO);
+    float target_pulses_persec = target_speed / conv_factor;
+    
+    // Boundary
+    if (target_pulses_persec <= lut_pulses[motor_index][0]) {
+        ESP_LOGE("motor_ctrl/get_feedforward", "recieved negative target speed");
+        return 0.0f;
+    }
+    if (target_pulses_persec >= lut_pulses[motor_index][42]) return 100.0f;
+
+    // Linear Interpolation
+    for (int i = 0; i < 42; i++) {
+        if (target_pulses_persec >= lut_pulses[motor_index][i] && target_pulses_persec <= lut_pulses[motor_index][i+1]) {
+            float ratio = (target_pulses_persec - lut_pulses[motor_index][i]) / (lut_pulses[motor_index][i+1] - lut_pulses[motor_index][i]);
+            // convert output back to 0-100 range
+            float output_i = (float)i * (100.0f / 42.0f);
+            float next_output_i = (float)(i+1) * (100.0f / 42.0f);
+            float feedforward_output = output_i + ratio * (next_output_i - output_i);
+            return feedforward_output;
+        }
+    }
+    return 0.0f;
 }
 
 static void brake_motor(int motor_index){
@@ -224,10 +257,8 @@ static void motor_control_task(void *arg) {
 
                 // PID
                 float pid_output = compute_pid(&pids[i], abs_target, abs_measured, dt);
-                // 2nd-Order feedforward control
-                float v_norm = (abs_target / MAX_WHEEL_SPEED);
-                float feedforward = ((K_linear * v_norm) + (K_quadratic * v_norm*v_norm)) * 100.0f;
-                
+                // Feedforward
+                float feedforward = get_feedforward(i, abs_target);
                 // total output
                 float total_output = pid_output + feedforward;
 
