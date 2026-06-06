@@ -56,13 +56,14 @@ static float target_ramp_speeds[3] = {0};
 static int64_t last_cmd_vel_time = 0;
 
 // Feedforward Gain
-static float K_ff = 1.0f;
+static float K_linear = 0.3f;
+static float K_quadratic = 0.9f;
 
 // PID Controllers
 static pid_controller_t pids[3] = {
-    {.kp = 100.0f, .ki = 50.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
-    {.kp = 100.0f, .ki = 50.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
-    {.kp = 100.0f, .ki = 50.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f}
+    {.kp = 150.0f, .ki = 80.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
+    {.kp = 150.0f, .ki = 80.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f},
+    {.kp = 150.0f, .ki = 80.0f, .kd = 0.0f, .integral = 0, .prev_measured = 0, .prev_error = 0, .out_max = 100.0f, .out_min = -100.0f}
 };
 
 // PID output to PWM
@@ -223,14 +224,17 @@ static void motor_control_task(void *arg) {
 
                 // PID
                 float pid_output = compute_pid(&pids[i], abs_target, abs_measured, dt);
-                // feedforward control
-                float feedforward = K_ff * (abs_target / MAX_WHEEL_SPEED) * 100.0f;
+                // 2nd-Order feedforward control
+                float v_norm = (abs_target / MAX_WHEEL_SPEED);
+                float feedforward = ((K_linear * v_norm) + (K_quadratic * v_norm*v_norm)) * 100.0f;
+                
+                // total output
                 float total_output = pid_output + feedforward;
 
                 if (total_output < 0.0f) {
                     total_output = 0.0f;
                 }
-                printf("Motor: %d | Target: %.2f | Measured: %.2f | PID Out: %.2f\n", i, abs_target, abs_measured, total_output);
+                printf("id: %d | tar: %.2f | mes: %.2f | feed: %.2f | pid: %.2f | tot: %.2f\n", i, abs_target, abs_measured, feedforward, pid_output, total_output);
                 set_pwm(i, total_output);
             }
         }
