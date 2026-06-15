@@ -1,5 +1,5 @@
 // Documentation notes for self:
-// make the micro-ROS motion control work
+// firmware is functional, need to change odometry orientation before publishing to match EKF
 
 #include <string.h>
 #include <stdio.h>
@@ -172,6 +172,32 @@ void micro_ros_task(void * arg) {
     sprintf(odom_msg.child_frame_id.data, "base_link");
     odom_msg.child_frame_id.size = strlen(odom_msg.child_frame_id.data);
     odom_msg.child_frame_id.capacity = 20;
+
+    // Initializa Odometry Covariance
+    for (int i = 0; i < 36; i++) {
+        odom_msg.pose.covariance[i] = 0.0;
+        odom_msg.twist.covariance[i] = 0.0;
+    }
+    odom_msg.pose.covariance[0] = 0.01;  // X pos
+    odom_msg.pose.covariance[7] = 0.01;  // Y pos
+    odom_msg.pose.covariance[14] = 0.01; // Z pos
+    odom_msg.pose.covariance[21] = 0.01; // R pos
+    odom_msg.pose.covariance[28] = 0.01; // P pos 
+    odom_msg.pose.covariance[35] = 0.01; // Y pos
+
+    // Initialize IMU Covariance
+    for (int i = 0; i < 9; i++) {
+        imu_msg.orientation_covariance[i] = 0.0;
+        imu_msg.angular_velocity_covariance[i] = 0.0;
+        imu_msg.linear_acceleration_covariance[i] = 0.0;
+    }
+    imu_msg.orientation_covariance[0] = -1.0; // Tell EKF orientation is not provided
+    imu_msg.angular_velocity_covariance[0] = 0.01; // X ang vel
+    imu_msg.angular_velocity_covariance[4] = 0.01; // Y ang vel
+    imu_msg.angular_velocity_covariance[8] = 0.01; // Z ang vel
+    imu_msg.linear_acceleration_covariance[0] = 0.01; // X lin acc
+    imu_msg.linear_acceleration_covariance[4] = 0.01; // Y lin acc
+    imu_msg.linear_acceleration_covariance[8] = 0.01; // Z lin acc
 
     // Main Loop
     while(1) {
