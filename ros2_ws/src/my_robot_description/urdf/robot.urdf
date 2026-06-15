@@ -51,7 +51,7 @@
     <joint name="laser_joint" type="fixed">
         <parent link="laser_mount"/>
         <child link="laser"/>
-        <origin xyz="0 0 0.02565" rpy="0 0 0"/>
+        <origin xyz="0 0 0.02565" rpy="0 0 3.14159"/>
     </joint>
 
     <link name="wheel_1">
@@ -65,12 +65,14 @@
         </material>
     </link>
 
+    <!-- wheel 1 = front left -->
     <joint name="wheel_1_joint" type="continuous">
         <parent link="base_link"/>
         <child link="wheel_1"/>
-        <origin xyz="0 -0.1345 -0.0601" rpy="1.5708 0 0"/>
+        <origin xyz="0.06725 0.11648 -0.0601" rpy="1.5708 0 2.61799"/>
     </joint>
 
+    <!-- wheel 2 = front right -->
     <link name="wheel_2">
         <visual>
             <geometry>
@@ -82,10 +84,11 @@
         </material>
     </link>
 
+    <!-- wheel 3 = back -->
     <joint name="wheel_2_joint" type="continuous">
         <parent link="base_link"/>
         <child link="wheel_2"/>
-        <origin xyz="-0.11648 0.06725 -0.0601" rpy="1.5708 0 1.0472"/>
+        <origin xyz="0.06725 -0.11648 -0.0601" rpy="1.5708 0 0.52359"/>
     </joint>
 
     <link name="wheel_3">
@@ -102,7 +105,7 @@
     <joint name="wheel_3_joint" type="continuous"> 
         <parent link="base_link"/>
         <child link="wheel_3"/>
-        <origin xyz="0.11648 0.06725 -0.0601" rpy="1.5708 0 -1.0472"/> 
+        <origin xyz="-0.1345 0.0 -0.0601" rpy="1.5708 0 -1.5708"/> 
     </joint>
 
 </robot>

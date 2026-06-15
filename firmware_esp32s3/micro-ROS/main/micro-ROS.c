@@ -237,7 +237,7 @@ void micro_ros_task(void * arg) {
             // Convert Raw Data to SI Units
             imu_msg.linear_acceleration.x = (float)mpu_device.accel.x / 16384.0 * 9.81;
             imu_msg.linear_acceleration.y = (float)mpu_device.accel.y / 16384.0 * 9.81;
-            imu_msg.linear_acceleration.z = (float)mpu_device.accel.z / 16384.0 * 9.81;
+            imu_msg.linear_acceleration.z = -1.0 * (float)mpu_device.accel.z / 16384.0 * 9.81; // add negative to irl orientation
 
             imu_msg.angular_velocity.x = (float)mpu_device.gyro.x / 131.0 * 0.01745;
             imu_msg.angular_velocity.y = (float)mpu_device.gyro.y / 131.0 * 0.01745;
