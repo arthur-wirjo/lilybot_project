@@ -127,6 +127,10 @@ void micro_ros_task(void * arg) {
     }
     printf("Agent connected!\n");
 
+    // Time Synchronization with Raspberry Pi
+    printf("Synchronizing time with ROS agent...\n");
+    rmw_uros_sync_session(1000);
+
     // Create Node
     RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
     rcl_node_t node;

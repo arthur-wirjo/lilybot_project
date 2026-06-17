@@ -1,0 +1,19 @@
+slam_toolbox:
+  ros__parameters:
+    # Frame Names
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_link
+    scan_topic: /scan
+
+    # Time and Tolerance
+    use_sim_time: false
+    transform_timeout: 0.5
+    tf_buffer_duration: 5.0
+
+    # Mapping setting for a small dorm room
+    resolution: 0.05
+    max_laser_range: 5.0 # RPLiDAR C1 Range
+    minimum_time_interval: 0.5
+    minimum_travel_distance: 0.1
+    minimum_travel_heading: 0.1
