@@ -3,3 +3,5 @@ ros2 run foxglove_bridge foxglove_bridge
 ros2 launch sllidar_ros2 sllidar_c1_launch.py serial_port:=/dev/ttyUSB0
 ros2 run robot_localization ekf_node --ros-args --params-file src/lilybot_localization/config/ekf.yaml
 ros2 launch slam_toolbox online_async_launch.py slam_params_file:=src/lilybot_localization/config/mapper_params.yaml
+ros2 launch nav2_bringup bringup_launch.py use_sim_time:=False autostart:=True map:=src/lilybot_navigation/dorm_map.yaml params_file:=src/lilybot_navigation/config/custom_nav2_params.yaml
+ros2 run nav2_map_server map_saver_cli -f src/lilybot_navigation/dorm_map
